@@ -1,0 +1,30 @@
+.navbar {
+  width: 100%;                /* 헤더 안에서 전체 너비 차지 */
+  background: #fff;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: center;    /* 가운데 정렬 */
+  gap: 20px;
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  width: 100%;                /* 메뉴도 가로 100% */
+}
+
+.nav-menu li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;        /* 줄바꿈 방지 */
+}
+
+.nav-menu li a:hover {
+  background: #007bff;
+  color: white;
+}

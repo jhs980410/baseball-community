@@ -1,0 +1,51 @@
+.login-dropdown {
+  position: absolute;
+  top: 100%;  /* 버튼 바로 아래 */
+  right: 0;   /* 로그인 버튼에 맞춤 */
+  margin-top: 10px;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+
+.login-dropdown h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: left; /*  좌측 정렬 */
+}
+
+.login-dropdown input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.login-dropdown .login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-dropdown .login-btn:hover {
+  background: #0056b3;
+}
+
+.login-dropdown .links {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.8rem;
+}

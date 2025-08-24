@@ -1,0 +1,111 @@
+/* 헤더 전체 */
+.header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: #ddd;
+  padding: 20px 40px; /* 상하/좌우 여백 */
+  box-sizing: border-box;
+}
+
+/* 상단바 (로고, 검색, 로그인) */
+.top-bar {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr; /* 로고 - 검색창 - 로그인 */
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+/* 로고 */
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 검색창 */
+.search input {
+  width: 100%;
+  max-width: 500px;  /* 검색창 넓이 제한 */
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+}
+
+/* 로그인 버튼 영역 */
+.login {
+  position: relative; /* 드롭다운 위치 기준점 */
+  text-align: right;
+}
+
+/* 로그인 버튼 */
+.login button {
+  padding: 10px 16px;
+  background: #007bff;  /* 파란색 */
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login button:hover {
+  background: #0056b3; /* hover 시 진한 파랑 */
+}
+
+/* 🔽 드롭다운 로그인 박스 */
+.login-dropdown {
+  position: absolute;
+  top: 100%;   /* 버튼 바로 아래 */
+  right: 0;
+  margin-top: 10px;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+
+/* 드롭다운 내부 텍스트 */
+.login-dropdown h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.login-dropdown input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.login-dropdown .login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-dropdown .login-btn:hover {
+  background: #0056b3;
+}
+
+.login-dropdown .links {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.8rem;
+}
