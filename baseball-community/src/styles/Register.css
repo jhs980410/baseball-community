@@ -1,0 +1,57 @@
+/* 회원가입 페이지 전용 */
+/* Register.css */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;  /* 상단 정렬 */
+  padding-top: 100px;       /* 원하는 만큼 아래로 내림 */
+  padding-left: 10px;
+  min-height: calc(100vh - 120px);
+
+}
+
+.register-box {
+  width: 700px;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.register-box h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.register-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background: #0056b3;
+}
+
+.links {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #666;
+}

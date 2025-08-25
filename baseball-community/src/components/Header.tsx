@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "../styles/Header.css";
 import "../styles/LoginModal.css";
 import LoginModal from "../pages/Login/LoginModal";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const [showLogin, setShowLogin] = useState(false);
@@ -21,7 +22,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="top-bar">
-        <div className="logo">KBO 다모여라</div>
+        <div className="logo"><Link to="/"> KBO 다모여라</Link></div>
         <div className="search">
           <input type="text" placeholder="검색하기" />
         </div>

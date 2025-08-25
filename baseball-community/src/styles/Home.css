@@ -1,14 +1,21 @@
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+/* Home 전용 (게시글 + 사이드바) */
+html {
+  overflow-y: scroll; /* 항상 스크롤 공간 확보 */
 }
-
-.main-content {
+.main-content.home {
   display: grid;
   grid-template-columns: 3fr 1fr;
-  gap: 50px;
+  gap: 20px;
   width: 100%;
   max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* PostDetail 전용 (가운데 카드 하나만) */
+.main-content.post-detail {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0px 20px;
 }
