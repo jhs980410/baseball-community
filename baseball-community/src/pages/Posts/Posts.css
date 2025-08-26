@@ -14,3 +14,7 @@
   background: #eee;
   border: 1px solid #ccc;
 }
+.post-item:hover {
+  background: #9a9b9c;
+  cursor: pointer;
+}

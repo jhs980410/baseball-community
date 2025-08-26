@@ -8,6 +8,7 @@ public class BaseballCommunityBeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(BaseballCommunityBeApplication.class, args);
+        System.out.println("Baseball Community Backend Application Start");
     }
 
 }

@@ -1,6 +1,6 @@
 // src/pages/Register/Register.tsx
 import React from "react";
-import "../../styles/Register.css";
+import "./Register.css";
 
 export default function Register() {
   return (

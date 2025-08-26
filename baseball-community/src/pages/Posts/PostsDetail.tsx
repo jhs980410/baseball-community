@@ -1,6 +1,6 @@
 // src/pages/Posts/PostDetail.tsx
 import React from "react";
-import "../../styles/PostDetail.css";
+import "./PostDetail.css";
 
 export default function PostDetail() {
   return (

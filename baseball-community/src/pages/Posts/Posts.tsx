@@ -1,8 +1,8 @@
 // src/pages/Posts/Posts.tsx
 import React from "react";
 import { Link } from "react-router-dom";
-import Pagination from "../../components/Pagination";
-import "../../styles/Posts.css";
+import Pagination from "../../components/Pagination/Pagination";
+import "./Posts.css";
 
 const dummyPosts = [
   {

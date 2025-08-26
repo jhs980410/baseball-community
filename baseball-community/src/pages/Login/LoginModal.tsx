@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Link } from "react-router-dom";
-import "../../styles/LoginModal.css";
+import "./LoginModal.css";
 
 interface Props {
   onClose: () => void;
