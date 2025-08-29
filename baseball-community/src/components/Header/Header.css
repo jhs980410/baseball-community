@@ -24,6 +24,7 @@
   color: #ffffff;
 }
 
+
 /* 검색창 */
 .search input {
   width: 100%;
@@ -37,22 +38,50 @@
 
 /* 로그인 버튼 영역 */
 .login {
-  position: relative; /* 드롭다운 위치 기준점 */
-  text-align: right;
-
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  
 }
 
-/* 로그인 버튼 */
-.login button {
-  padding: 10px 16px;
-  background: #1565c0;  /* 파란색 */
-  color: #fff;
-  font-size: 1rem;
+/* 닉네임 */
+.nickname {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* 공통 버튼 */
+.btn {
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 14px;
   font-weight: bold;
+  text-decoration: none;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
+}
+
+/* 마이페이지 버튼 */
+.btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* 로그아웃 버튼 */
+.btn.logout {
+  background-color: #1565c0;
+  color: #fff;
+}
+
+.btn.logout:hover {
+  background-color: #0056b3;
 }
 
 .login button:hover {
@@ -110,4 +139,55 @@
   margin-top: 10px;
   text-align: center;
   font-size: 0.8rem;
+}
+
+.auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 요소 간격 */
+}
+
+.nickname {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* 링크 버튼 (마이페이지) */
+.btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* 로그아웃 버튼 */
+.btn.logout {
+  background-color: #1565c0;
+  color: #fff;
+}
+
+.btn.logout:hover {
+  background-color: #0056b3;
+}
+
+.btn.login {
+  background-color: #1565c0;
+  color: #fff;
+}
+
+.btn.login:hover {
+  background-color: #0056b3;
 }

@@ -33,6 +33,34 @@
   font-size: 1rem;
 }
 
+.register__field {
+  display: flex;
+  gap: 8px;
+
+  align-items: stretch; /* input과 버튼 높이 같게 */
+}
+
+.register__input {
+  flex: 1; /* 남는 공간 전부 차지 */
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.register__btn {
+  padding: 12px 16px; /* 좌우 여백만 */
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 100%; /* input 높이에 맞춤 */
+}
+
 .btn-submit {
   width: 100%;
   padding: 12px;
