@@ -5,6 +5,8 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/home/Home";
 import Register from "./pages/Login/Register";
 import PostDetail from "./pages/Posts/PostsDetail";
+import Mypage from "./pages/user/Mypage";
+import TeamPage from "./pages/board/TeamPage";
 import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/mypage" element={<Mypage />} />
+          <Route path="/team/:id" element={<TeamPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

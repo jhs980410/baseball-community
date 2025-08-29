@@ -1,0 +1,81 @@
+.mypage {
+  display: flex;
+  max-width: 1000px;
+  margin: 40px auto;
+  gap: 20px;
+}
+
+/* 왼쪽 사이드바 */
+.mypage-sidebar {
+  width: 250px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.nickname {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.email {
+  font-size: 14px;
+  color: #666;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.menu li:hover {
+  background: #e9ecef;
+}
+
+.menu li.active {
+  background: #1565c0;
+  color: white;
+  font-weight: bold;
+}
+
+/* 오른쪽 콘텐츠 */
+.mypage-content {
+  flex: 1;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+}
+.mypagetitle{
+    margin : 10px 10px 10px 10px;
+    padding: 5px;
+    
+}
+.mypage-content ul {
+  margin-left: 20px;   /* ul 전체 왼쪽 여백 */
+  padding-left: 20px;  /* 리스트 불릿과 텍스트 사이 공간 */
+  list-style-position: inside; /* 불릿 위치 조정 */
+}
+
+.mypage-content li {
+  margin-bottom: 8px;  /* 리스트 항목 간격 */
+}
