@@ -7,7 +7,8 @@ import "./Home.css";
 export default function Home() {
   return (
     <>
-     <main className="main-content home"> <Posts /> <SideBar /> </main>
+     <main className="main-content home">  <Posts teamId="all" />
+      <SideBar /> </main>
     </>
   );
 }

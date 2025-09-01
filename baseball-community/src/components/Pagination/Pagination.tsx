@@ -1,15 +1,48 @@
 import React from "react";
 import "./Pagination.css";
 
-export default function Pagination(){
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
 
-    return(
-             <div className="pagination">
-                    <button>&lt;</button>
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <button key={num}>{num}</button>
-                    ))}
-                    <button>&gt;</button>
-            </div>
+export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  const pageGroupSize = 10; // 한 번에 보여줄 페이지 수
+  const currentGroup = Math.floor(currentPage / pageGroupSize);
+  const startPage = currentGroup * pageGroupSize;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages - 1);
+
+  const pages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(
+      <button
+        key={i}
+        className={i === currentPage ? "active" : ""}
+        onClick={() => onPageChange(i)}
+      >
+        {i + 1}
+      </button>
     );
+  }
+
+  return (
+    <div className="pagination">
+      <button
+        disabled={currentGroup === 0}
+        onClick={() => onPageChange(startPage - 1)}
+      >
+        이전
+      </button>
+
+      {pages}
+
+      <button
+        disabled={endPage >= totalPages - 1}
+        onClick={() => onPageChange(endPage + 1)}
+      >
+        다음
+      </button>
+    </div>
+  );
 }
