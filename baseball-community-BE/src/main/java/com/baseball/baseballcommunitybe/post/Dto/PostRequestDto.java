@@ -1,4 +1,0 @@
-package com.baseball.baseballcommunitybe.post.Dto;
-
-public class PostRequestDto {
-}

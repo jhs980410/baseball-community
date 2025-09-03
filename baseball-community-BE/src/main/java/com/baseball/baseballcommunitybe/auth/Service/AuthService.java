@@ -1,11 +1,11 @@
 package com.baseball.baseballcommunitybe.auth.Service;
 
 
-import com.baseball.baseballcommunitybe.auth.Dto.LoginRequestDto;
-import com.baseball.baseballcommunitybe.auth.Dto.SignupRequestDto;
-import com.baseball.baseballcommunitybe.auth.Dto.TokenResponse;
+import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
+import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
+import com.baseball.baseballcommunitybe.auth.dto.TokenResponse;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
-import com.baseball.baseballcommunitybe.user.entity.UserEntity;
+import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,12 +29,12 @@ public class AuthService {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
-        UserEntity user = UserEntity.builder()
+        User user = User.builder()
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .nickname(dto.getNickname())
-                .role(UserEntity.Role.USER)
-                .status(UserEntity.Status.ACTIVE)
+                .role(User.Role.USER)
+                .status(User.Status.ACTIVE)
                 .build();
 
         userRepository.save(user);
@@ -42,7 +42,7 @@ public class AuthService {
 
     // 로그인
     public TokenResponse login(LoginRequestDto dto) {
-        UserEntity user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일"));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
@@ -50,6 +50,6 @@ public class AuthService {
         }
 
         String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
-        return new TokenResponse(token, user.getEmail(), user.getNickname());
+        return new TokenResponse(token,user.getId(), user.getEmail(), user.getNickname());
     }
 }

@@ -1,8 +1,8 @@
 package com.baseball.baseballcommunitybe.auth.Controller;
 
-import com.baseball.baseballcommunitybe.auth.Dto.LoginRequestDto;
-import com.baseball.baseballcommunitybe.auth.Dto.SignupRequestDto;
-import com.baseball.baseballcommunitybe.auth.Dto.TokenResponse;
+import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
+import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
+import com.baseball.baseballcommunitybe.auth.dto.TokenResponse;
 
 import com.baseball.baseballcommunitybe.auth.Service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;

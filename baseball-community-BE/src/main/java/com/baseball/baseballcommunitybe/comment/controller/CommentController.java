@@ -1,4 +1,43 @@
 package com.baseball.baseballcommunitybe.comment.controller;
 
+import com.baseball.baseballcommunitybe.comment.dto.CommentRequestDto;
+import com.baseball.baseballcommunitybe.comment.dto.CommentResponseDto;
+import com.baseball.baseballcommunitybe.comment.service.CommentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/comments")
+@RequiredArgsConstructor
 public class CommentController {
+
+    private final CommentService commentService;
+
+    // 특정 게시글 댓글 조회
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(commentService.findByPost(postId));
+    }
+
+    // 특정 유저 댓글 조회 (마이페이지에서 활용 가능)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CommentResponseDto>> getCommentsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(commentService.findByUser(userId));
+    }
+
+    // 댓글 작성
+    @PostMapping
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
+        return ResponseEntity.ok(commentService.create(dto));
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        commentService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

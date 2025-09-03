@@ -18,8 +18,12 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) //  Spring Security 6.1 이상 방식
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**",("/api/posts/**")).permitAll() // 로그인/회원가입은 허용
-                        .anyRequest().authenticated() // 나머지는 인증 필요
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/posts/**").permitAll()
+                        .requestMatchers("/api/comments/**").permitAll()
+                        .requestMatchers("/api/likes/**").permitAll()
+                        .anyRequest().authenticated() // 로그인/회원가입은 허용
+                        // 나머지는 인증 필요
                 );
 
         return http.build();

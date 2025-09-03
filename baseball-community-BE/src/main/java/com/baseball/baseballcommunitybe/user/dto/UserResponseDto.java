@@ -1,6 +1,6 @@
 package com.baseball.baseballcommunitybe.user.dto;
 
-import com.baseball.baseballcommunitybe.user.entity.UserEntity;
+import com.baseball.baseballcommunitybe.user.entity.User;
 
 import lombok.Getter;
 
@@ -11,7 +11,7 @@ public class UserResponseDto {
     private String nickname;
     private String role;
 
-    public UserResponseDto(UserEntity user) {
+    public UserResponseDto(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();

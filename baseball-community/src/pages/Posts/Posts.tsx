@@ -56,7 +56,7 @@ export default function Posts({ teamId }: PostsProps) {
           <Link to={`/posts/${post.id}`} key={post.id} className="post-item">
             <div className="post-title">{post.title}</div>
             <div className="post-meta">
-              <span className="date">{post.createdAt}</span>
+             <span className="date">{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
           </Link>
         ))}

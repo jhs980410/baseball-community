@@ -1,4 +1,4 @@
-package com.baseball.baseballcommunitybe.auth.Dto;
+package com.baseball.baseballcommunitybe.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TokenResponse {
     private String token;
+    private Long id;
     private String email;
     private String nickname;
 }
