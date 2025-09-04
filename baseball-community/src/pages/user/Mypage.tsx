@@ -33,12 +33,12 @@ export default function Mypage() {
   const { userInfo } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("posts");
 
-  // ✅ 각 탭별 상태
+  //  각 탭별 상태
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [likes, setLikes] = useState<Like[]>([]);
 
-  // ✅ 페이지네이션 상태
+  //  페이지네이션 상태
   const [postPage, setPostPage] = useState(0);
   const [postTotalPages, setPostTotalPages] = useState(0);
 

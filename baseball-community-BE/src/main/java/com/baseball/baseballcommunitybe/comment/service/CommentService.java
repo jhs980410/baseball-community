@@ -2,6 +2,7 @@ package com.baseball.baseballcommunitybe.comment.service;
 
 import com.baseball.baseballcommunitybe.comment.dto.CommentRequestDto;
 import com.baseball.baseballcommunitybe.comment.dto.CommentResponseDto;
+import com.baseball.baseballcommunitybe.comment.dto.CommentSimpleDto;
 import com.baseball.baseballcommunitybe.comment.entity.Comment;
 import com.baseball.baseballcommunitybe.comment.repository.CommentRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
@@ -64,5 +65,11 @@ public class CommentService {
 
     public void delete(Long id) {
         commentRepository.deleteById(id);
+    }
+    //게시글내 댓글목록 //
+    public List<CommentSimpleDto> findSimpleByPost(Long postId) {
+        return commentRepository.findByPostId(postId).stream()
+                .map(CommentSimpleDto::from)
+                .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,7 @@
 package com.baseball.baseballcommunitybe.post.controller;
 
+import com.baseball.baseballcommunitybe.comment.service.CommentService;
+import com.baseball.baseballcommunitybe.post.dto.PostDetailResponseDto;
 import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.service.PostService;
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
-
+    private final CommentService commentService;
     // 전체 게시글
     @GetMapping
     public Page<PostResponseDto> getAllPosts(
@@ -47,8 +49,10 @@ public class PostController {
     }
 
     // 단일 게시글
-    @GetMapping("/{id}")
-    public PostResponseDto getPost(@PathVariable Long id) {
-        return PostResponseDto.from(postService.getPost(id));
+    @GetMapping("/{post_id}")
+    public PostDetailResponseDto getPost(@PathVariable Long post_id) {
+        var post = postService.getPost(post_id);
+        var comments = commentService.findSimpleByPost(post_id);
+        return PostDetailResponseDto.from(post, comments);
     }
 }

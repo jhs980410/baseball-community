@@ -18,7 +18,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/posts/:post_id" element={<PostDetail />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/team/:id" element={<TeamPage />} />
         </Route>

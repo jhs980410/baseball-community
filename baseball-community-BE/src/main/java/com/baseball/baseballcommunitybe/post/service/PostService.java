@@ -18,19 +18,19 @@ public class PostService {
     // 전체 게시글 최신순 조회
     public Page<Post> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return postRepository.findAllWithUser(pageable);
     }
 
     // 팀별 최신글 최신순 조회
     public Page<Post> getPostsByTeam(Integer teamId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findByTeamIdOrderByCreatedAtDesc(teamId, pageable);
+        return postRepository.findByTeamIdWithUser(teamId, pageable);
     }
 
     // 특정 유저의 글 최신순 조회
     public Page<Post> getPostsByUser(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        return postRepository.findByUserIdWithUser(userId, pageable);
     }
 
     // 단일 게시글 조회
