@@ -16,38 +16,31 @@ public class PostController {
 
     private final PostService postService;
     private final CommentService commentService;
-    // 전체 게시글
     @GetMapping
     public Page<PostResponseDto> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return postService.getAllPosts(page, size)
-                .map(PostResponseDto::from);
+        return postService.getAllPosts(page, size);
     }
 
-    // 팀별 게시글
     @GetMapping("/team/{teamId}")
     public Page<PostResponseDto> getPostsByTeam(
             @PathVariable Integer teamId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return postService.getPostsByTeam(teamId, page, size)
-                .map(PostResponseDto::from);
+        return postService.getPostsByTeam(teamId, page, size);
     }
 
-    // 특정 유저 게시글 (이미 DTO로 반환 OK)
     @GetMapping("/user/{userId}")
     public Page<PostResponseDto> getPostsByUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return postService.getPostsByUser(userId, page, size)
-                .map(PostResponseDto::from);
+        return postService.getPostsByUser(userId, page, size);
     }
-
     // 단일 게시글
     @GetMapping("/{post_id}")
     public PostDetailResponseDto getPost(@PathVariable Long post_id) {

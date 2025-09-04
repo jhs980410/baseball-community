@@ -1,5 +1,6 @@
 package com.baseball.baseballcommunitybe.post.service;
 
+import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,25 +16,25 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    // 전체 게시글 최신순 조회
-    public Page<Post> getAllPosts(int page, int size) {
+    // 전체 게시글 최신순 조회 (댓글 수 포함)
+    public Page<PostResponseDto> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findAllWithUser(pageable);
+        return postRepository.findAllWithCommentCount(pageable);
     }
 
-    // 팀별 최신글 최신순 조회
-    public Page<Post> getPostsByTeam(Integer teamId, int page, int size) {
+    // 팀별 최신글 최신순 조회 (댓글 수 포함)
+    public Page<PostResponseDto> getPostsByTeam(Integer teamId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findByTeamIdWithUser(teamId, pageable);
+        return postRepository.findByTeamIdWithCommentCount(teamId, pageable);
     }
 
-    // 특정 유저의 글 최신순 조회
-    public Page<Post> getPostsByUser(Long userId, int page, int size) {
+    // 특정 유저의 글 최신순 조회 (댓글 수 포함)
+    public Page<PostResponseDto> getPostsByUser(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return postRepository.findByUserIdWithUser(userId, pageable);
+        return postRepository.findByUserIdWithCommentCount(userId, pageable);
     }
 
-    // 단일 게시글 조회
+    // 단일 게시글 조회 (댓글은 별도 DTO로 처리)
     public Post getPost(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + id));

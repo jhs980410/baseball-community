@@ -1,10 +1,13 @@
 package com.baseball.baseballcommunitybe.post.entity;
 
+import com.baseball.baseballcommunitybe.comment.entity.Comment;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts", indexes = {
@@ -48,4 +51,6 @@ public class Post {
     @Column(name = "updated_at", nullable = false,
             columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 }
