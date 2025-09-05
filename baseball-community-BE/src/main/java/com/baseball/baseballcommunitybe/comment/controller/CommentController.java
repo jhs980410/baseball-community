@@ -4,9 +4,11 @@ import com.baseball.baseballcommunitybe.comment.dto.CommentRequestDto;
 import com.baseball.baseballcommunitybe.comment.dto.CommentResponseDto;
 import com.baseball.baseballcommunitybe.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -24,12 +26,12 @@ public class CommentController {
 
     // 특정 유저 댓글 조회 (마이페이지에서 활용 가능)
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(commentService.findByUser(userId));
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByUser(
+            @PathVariable Long userId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(commentService.findByUser(userId, pageable));
     }
-
-    // 댓글 작성
-    @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
         return ResponseEntity.ok(commentService.create(dto));
     }

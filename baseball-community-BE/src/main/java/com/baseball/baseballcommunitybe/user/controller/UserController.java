@@ -27,4 +27,6 @@ public class UserController {
         userService.updateUser(id, dto);
         return ResponseEntity.ok("회원 정보 수정 완료");
     }
+
+
 }

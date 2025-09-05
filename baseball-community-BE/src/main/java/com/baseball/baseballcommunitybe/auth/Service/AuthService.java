@@ -12,23 +12,38 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    //비밀번호 정규식
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,20}$";
 
+    private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
     // 회원가입
     @Transactional
     public void signup(SignupRequestDto dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        // 이메일 또는 닉네임 중복 체크 (쿼리 1번)
+        List<User> conflicts = userRepository.findByEmailOrNickname(dto.getEmail(), dto.getNickname());
+        if (!pattern.matcher(dto.getPassword()).matches()) {
+            throw new IllegalArgumentException("비밀번호는 대문자, 소문자, 숫자, 특수문자를 모두 포함해야 합니다.");
         }
-        if (userRepository.existsByNickname(dto.getNickname())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        for (User u : conflicts) {
+            if (u.getEmail().equals(dto.getEmail())) {
+                throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            }
+            if (u.getNickname().equals(dto.getNickname())) {
+                throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+            }
         }
 
+        // 비밀번호 암호화 후 유저 생성
         User user = User.builder()
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -39,6 +54,7 @@ public class AuthService {
 
         userRepository.save(user);
     }
+
 
     // 로그인
     public TokenResponse login(LoginRequestDto dto) {

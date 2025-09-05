@@ -12,6 +12,7 @@ interface Post {
   teamId: number;
   createdAt: string;
   updatedAt: string;
+  commentCount:number;
 }
 
 interface PostsProps {
@@ -54,7 +55,9 @@ export default function Posts({ teamId }: PostsProps) {
       <div className="post-list">
         {posts.map((post) => (
           <Link to={`/posts/${post.id}`} key={post.id} className="post-item">
-            <div className="post-title">{post.title}</div>
+            <div className="post-title">{post.title}
+              <span className="comment-count">💬 {post.commentCount}</span>
+            </div>
             <div className="post-meta">
              <span className="date">{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>

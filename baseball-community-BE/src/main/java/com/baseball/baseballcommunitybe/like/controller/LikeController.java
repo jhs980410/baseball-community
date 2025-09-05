@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 @RestController
 @RequestMapping("/api/likes")
 @RequiredArgsConstructor
@@ -17,8 +17,11 @@ public class LikeController {
 
     // 특정 유저가 좋아요한 글 조회 (마이페이지에서 활용)
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<LikeResponseDto>> getLikesByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(likeService.findByUser(userId));
+    public ResponseEntity<Page<LikeResponseDto>> getLikesByUser(
+            @PathVariable Long userId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(likeService.findByUser(userId, pageable));
     }
 
     // 좋아요 추가

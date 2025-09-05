@@ -5,6 +5,7 @@ import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponse;
 
 import com.baseball.baseballcommunitybe.auth.Service.AuthService;
+import com.baseball.baseballcommunitybe.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -16,13 +17,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequestDto dto) {
         authService.signup(dto);
         return ResponseEntity.ok("회원가입 성공");
     }
+    // 이메일 중복확인
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean available = !userService.existsByEmail(email);
+        return ResponseEntity.ok(available);
+    }
 
+    // 닉네임 중복확인
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        boolean available = !userService.existsByNickname(nickname);
+        return ResponseEntity.ok(available);
+    }
     // ---------------- 로그인 ----------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto, HttpServletResponse response) {

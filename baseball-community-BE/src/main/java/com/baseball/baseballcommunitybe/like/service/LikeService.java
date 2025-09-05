@@ -7,11 +7,10 @@ import com.baseball.baseballcommunitybe.like.repository.LikeRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import com.baseball.baseballcommunitybe.user.entity.User;
 @Service
 @RequiredArgsConstructor
 public class LikeService {
@@ -20,16 +19,22 @@ public class LikeService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public List<LikeResponseDto> findByUser(Long userId) {
-        return likeRepository.findByUser_Id(userId).stream()
+    /**
+     * 마이페이지 - 내가 좋아요한 글 (페이징)
+     */
+    public Page<LikeResponseDto> findByUser(Long userId, Pageable pageable) {
+        return likeRepository.findByUser_Id(userId, pageable)
                 .map(l -> new LikeResponseDto(
                         l.getPost().getId(),
                         l.getPost().getTitle(),
                         l.getPost().getUser().getNickname(),
                         l.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                ));
     }
+
+    /**
+     * 좋아요 추가
+     */
     public void likePost(Long postId, Long userId) {
         var post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
@@ -42,10 +47,16 @@ public class LikeService {
         }
     }
 
+    /**
+     * 좋아요 취소
+     */
     public void unlikePost(Long postId, Long userId) {
         likeRepository.deleteById(new LikeId(postId, userId));
     }
 
+    /**
+     * 게시글 좋아요 개수 카운트
+     */
     public long countLikes(Long postId) {
         return likeRepository.countByPost_Id(postId);
     }

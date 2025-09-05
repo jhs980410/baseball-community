@@ -1,16 +1,42 @@
 package com.baseball.baseballcommunitybe.comment.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
+import lombok.Getter;
+import lombok.Setter;
+import com.baseball.baseballcommunitybe.comment.entity.Comment;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class CommentResponseDto {
     private Long id;
     private String content;
+    private LocalDateTime date;
+    private Long postId;
     private String postTitle;
-    private String userNickname;
-    private LocalDateTime createdAt;
+
+    // 마이페이지 전용 팩토리
+    public static CommentResponseDto forUser(Comment comment) {
+        return new CommentResponseDto(
+                comment.getId(),
+                comment.getContent(),
+                comment.getCreatedAt(),         // date
+                comment.getPost().getId(),      // postId
+                comment.getPost().getTitle()    // postTitle
+        );
+    }
+
+    // 게시글 상세 전용 팩토리
+    public static CommentResponseDto forPost(Comment comment) {
+        return new CommentResponseDto(
+                comment.getId(),
+                comment.getContent(),
+                comment.getCreatedAt(),         // date
+                comment.getPost().getId(),      // postId
+                comment.getPost().getTitle()    // postTitle
+        );
+    }
+
 }

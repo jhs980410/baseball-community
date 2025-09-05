@@ -18,9 +18,11 @@ interface Post {
 interface Comment {
   id: number;
   content: string;
-  postTitle: string;
   date: string;
+  postId: number;
+  postTitle: string;
 }
+
 
 interface Like {
   id: number;
@@ -72,6 +74,7 @@ export default function Mypage() {
           setComments(res.data.content);
           setCommentTotalPages(res.data.totalPages);
         }
+
 
         if (activeTab === "likes") {
           const res = await axios.get(
@@ -168,26 +171,27 @@ export default function Mypage() {
           </div>
         )}
 
-        {activeTab === "comments" && !loading && (
-          <div>
-            <h3 className="mypagetitle">내가 쓴 댓글</h3>
-            <ul>
-              {comments.map((c) => (
-                <li key={c.id}>
-                  <strong>{c.content}</strong>
-                  <small>
-                    → 원글: {c.postTitle} ({c.date})
-                  </small>
-                </li>
-              ))}
-            </ul>
-            <Pagination
-              currentPage={commentPage}
-              totalPages={commentTotalPages}
-              onPageChange={setCommentPage}
-            />
-          </div>
-        )}
+       {activeTab === "comments" && !loading && (
+        <div>
+          <h3 className="mypagetitle">내가 쓴 댓글</h3>
+          <ul>
+            {comments.map((c) => (
+              <li key={c.id}>
+                <strong>{c.content}</strong>
+                <small>
+                  → 원글: {c.postTitle} (
+                  {new Date(c.date).toLocaleDateString()})
+                </small>
+              </li>
+            ))}
+          </ul>
+          <Pagination
+            currentPage={commentPage}
+            totalPages={commentTotalPages}
+            onPageChange={setCommentPage}
+          />
+        </div>
+)}
 
         {activeTab === "likes" && !loading && (
           <div>
