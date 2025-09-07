@@ -18,5 +18,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 
     Page<Comment> findByUserId(Long userId, Pageable pageable);
-
+    Long countByPostId(Long postId);  // 게시글별 댓글 개수 카운트
 }

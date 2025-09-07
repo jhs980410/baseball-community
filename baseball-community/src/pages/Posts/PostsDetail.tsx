@@ -16,21 +16,30 @@ interface Post {
   content: string;
   nickname: string;
   createdAt: string;
-  comments: Comment[]; // 백엔드에서 댓글 포함해서 내려주는 경우
+  comments: Comment[];
+  likeCount: number;            // 좋아요 수
+  likedByCurrentUser: boolean;  // 현재 유저가 눌렀는지 여부
 }
 
 export default function PostDetail() {
   const { post_id } = useParams<{ post_id: string }>();
-  const { userInfo } = useContext(AuthContext); //  로그인 유저 정보
+  const { userInfo } = useContext(AuthContext);
   const [post, setPost] = useState<Post | null>(null);
   const [newComment, setNewComment] = useState("");
+
+  const [likeCount, setLikeCount] = useState(0);
+  const [liked, setLiked] = useState(false);
 
   // 게시글 + 댓글 불러오기
   const fetchPost = () => {
     if (!post_id) return;
     fetch(`http://localhost:8080/api/posts/${post_id}`)
       .then((res) => res.json())
-      .then((data) => setPost(data))
+      .then((data) => {
+        setPost(data);
+        setLikeCount(data.likeCount);
+        setLiked(data.likedByCurrentUser);
+      })
       .catch((err) => console.error("게시글 불러오기 실패:", err));
   };
 
@@ -54,17 +63,35 @@ export default function PostDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           postId: Number(post_id),
-          userId: userInfo.id, //  로그인 유저 id
+          userId: userInfo.id,
           content: newComment,
         }),
       });
 
       if (!res.ok) throw new Error("댓글 작성 실패");
 
-      setNewComment(""); // 입력창 비우기
-      fetchPost(); // 댓글 목록 새로고침
+      setNewComment("");
+      fetchPost();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // 좋아요 토글
+  const handleLike = async () => {
+    if (!userInfo) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    const method = liked ? "DELETE" : "POST";
+    try {
+      await fetch(`http://localhost:8080/api/likes/${post_id}/user/${userInfo.id}/toggle`, {
+        method,
+      });
+      setLiked(!liked);
+      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+    } catch (err) {
+      console.error("좋아요 처리 실패", err);
     }
   };
 
@@ -80,14 +107,24 @@ export default function PostDetail() {
         <div className="post-meta">
           <span>작성자: {post.nickname}</span>
           <span>{post.createdAt.replace("T", " ")}</span>
+          <span className="like-count">추천 수: {likeCount}</span>
         </div>
         <div className="post-content">{post.content}</div>
+{/* 버튼은 토글 전용 */}
+        <div className="post-actions">
+          <button
+            className={`btn-like ${liked ? "active" : ""}`}
+            onClick={handleLike}
+          >
+            {liked ?    "좋아요취소"  :"👍좋아요 "}
+          </button>
+          <button className="btn-report">🚨 신고</button>
+        </div>
 
         {/* 댓글 */}
         <div className="comment-section">
           <h3>댓글</h3>
 
-          {/* 댓글 목록 */}
           {post.comments && post.comments.length > 0 ? (
             post.comments.map((c) => (
               <div className="comment" key={c.id}>
@@ -104,13 +141,12 @@ export default function PostDetail() {
             <p>아직 댓글이 없습니다.</p>
           )}
 
-          {/* 댓글 작성 */}
           <form className="comment-form" onSubmit={handleSubmit}>
             <textarea
               placeholder={userInfo ? "댓글을 입력하세요" : "로그인 후 댓글 작성이 가능합니다."}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              disabled={!userInfo} // 로그인 안 하면 입력 막기
+              disabled={!userInfo}
             />
             <button type="submit" disabled={!userInfo}>
               댓글 작성

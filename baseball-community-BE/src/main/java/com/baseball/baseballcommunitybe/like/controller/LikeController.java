@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 @RestController
 @RequestMapping("/api/likes")
 @RequiredArgsConstructor
@@ -15,7 +16,9 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    // 특정 유저가 좋아요한 글 조회 (마이페이지에서 활용)
+    /**
+     * 특정 유저가 좋아요한 글 조회 (마이페이지)
+     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<LikeResponseDto>> getLikesByUser(
             @PathVariable Long userId,
@@ -24,21 +27,21 @@ public class LikeController {
         return ResponseEntity.ok(likeService.findByUser(userId, pageable));
     }
 
-    // 좋아요 추가
-    @PostMapping("/{postId}/user/{userId}")
-    public ResponseEntity<Void> likePost(@PathVariable Long postId, @PathVariable Long userId) {
-        likeService.likePost(postId, userId);
-        return ResponseEntity.ok().build();
+    /**
+     * 좋아요 토글
+     */
+    @PostMapping("/{postId}/user/{userId}/toggle")
+    public ResponseEntity<LikeResponseDto> toggleLike(
+            @PathVariable Long postId,
+            @PathVariable Long userId
+    ) {
+        LikeResponseDto response = likeService.toggleLike(postId, userId);
+        return ResponseEntity.ok(response);
     }
 
-    // 좋아요 취소
-    @DeleteMapping("/{postId}/user/{userId}")
-    public ResponseEntity<Void> unlikePost(@PathVariable Long postId, @PathVariable Long userId) {
-        likeService.unlikePost(postId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // 게시글 좋아요 개수 조회
+    /**
+     * 게시글 좋아요 개수 조회
+     */
     @GetMapping("/post/{postId}/count")
     public ResponseEntity<Long> countLikes(@PathVariable Long postId) {
         return ResponseEntity.ok(likeService.countLikes(postId));
