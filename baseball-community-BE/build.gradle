@@ -50,6 +50,9 @@ dependencies {
 // BCrypt 암호화
     implementation 'org.springframework.security:spring-security-crypto'
 
+    // Jsoup (HTML Sanitizer)
+    implementation 'org.jsoup:jsoup:1.17.2'
+
 }
 
 

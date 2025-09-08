@@ -8,6 +8,7 @@ import PostDetail from "./pages/Posts/PostsDetail";
 import Mypage from "./pages/user/Mypage";
 import TeamPage from "./pages/board/TeamPage";
 import { AuthProvider } from "./contexts/AuthContext";
+import PostCreate from "./pages/Posts/PostCreate";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/posts/:post_id" element={<PostDetail />} />
+          <Route path="/posts/create" element={<PostCreate />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/team/:id" element={<TeamPage />} />
         </Route>

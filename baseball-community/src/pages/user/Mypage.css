@@ -1,13 +1,13 @@
 .mypage {
   display: flex;
-  max-width: 1000px;
+  max-width: 1200px;   /* 전체 폭 넓힘 (기존 1000px → 1200px) */
   margin: 40px auto;
   gap: 20px;
 }
 
-/* 왼쪽 사이드바 */
+/* ===== 왼쪽 사이드바 ===== */
 .mypage-sidebar {
-  width: 250px;
+  flex: 0 0 230px;     /* 사이드바 고정 폭 */
   background: #f8f9fa;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -57,9 +57,9 @@
   font-weight: bold;
 }
 
-/* 오른쪽 콘텐츠 */
+/* ===== 오른쪽 콘텐츠 ===== */
 .mypage-content {
-  flex: 1;
+  flex: 1;             /* 남은 공간 자동 확장 */
   background: white;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -76,14 +76,14 @@
   color: #1565c0;
 }
 
-/* 리스트 스타일 */
+/* ===== 리스트 공통 ===== */
 .mypage-content ul {
-  list-style: none; /* 불릿 제거 */
+  list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 항목 간격 */
+  gap: 12px;
 }
 
 .mypage-content li {
@@ -92,13 +92,18 @@
   border-radius: 6px;
   padding: 12px 15px;
   transition: all 0.2s ease;
-  cursor: pointer;
   display: flex;
-  justify-content: space-between; /* 제목 - 날짜/조회수 나눠서 */
+  justify-content: space-between; /* 좌: 글/댓글 내용, 우: 버튼 */
   align-items: center;
 }
 
-/* 글 제목은 좌측, 날짜/조회수는 우측 */
+.mypage-content li:hover {
+  background: #e9f1fb;
+  border-color: #1565c0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 .mypage-content li strong {
   font-size: 16px;
   color: #333;
@@ -109,10 +114,30 @@
   color: #666;
 }
 
-/* hover 효과 */
-.mypage-content li:hover {
-  background: #e9f1fb;
-  border-color: #1565c0;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+/* ===== 좋아요 취소 버튼 ===== */
+.btn-unlike {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-unlike:hover {
+  background-color: #e53935;
+  color: #fff;
+  border-color: #e53935;
+}
+.post-link {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.post-link:hover {
+  color: #1565c0;
 }

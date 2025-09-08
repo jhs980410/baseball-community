@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // 기본 스타일
+import "react-quill/dist/quill.snow.css";
 
 export default function Editor() {
-  const [value, setValue] = useState("");
+  // value는 Quill이 반환하는 HTML string
+  const [value, setValue] = useState<string>("");
 
   return (
     <div>
       <ReactQuill
         theme="snow"
         value={value}
-        onChange={setValue}
+        onChange={(content: string) => setValue(content)} // 타입 명시
         placeholder="내용을 입력하세요..."
         style={{ height: "300px", marginBottom: "50px" }}
       />

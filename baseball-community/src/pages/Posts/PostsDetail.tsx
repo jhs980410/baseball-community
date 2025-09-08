@@ -16,6 +16,7 @@ interface Post {
   content: string;
   nickname: string;
   createdAt: string;
+  commentCount: number;
   comments: Comment[];
   likeCount: number;            // 좋아요 수
   likedByCurrentUser: boolean;  // 현재 유저가 눌렀는지 여부
@@ -33,13 +34,13 @@ export default function PostDetail() {
   // 게시글 + 댓글 불러오기
   const fetchPost = () => {
     if (!post_id) return;
-    fetch(`http://localhost:8080/api/posts/${post_id}`)
+    fetch(`http://localhost:8080/api/posts/${post_id}?userId=${userInfo?.id || ""}`)
       .then((res) => res.json())
       .then((data) => {
         setPost(data);
         setLikeCount(data.likeCount);
         setLiked(data.likedByCurrentUser);
-      })
+          })
       .catch((err) => console.error("게시글 불러오기 실패:", err));
   };
 
@@ -78,22 +79,24 @@ export default function PostDetail() {
   };
 
   // 좋아요 토글
-  const handleLike = async () => {
-    if (!userInfo) {
-      alert("로그인 후 이용 가능합니다.");
-      return;
-    }
-    const method = liked ? "DELETE" : "POST";
-    try {
-      await fetch(`http://localhost:8080/api/likes/${post_id}/user/${userInfo.id}/toggle`, {
-        method,
-      });
-      setLiked(!liked);
-      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-    } catch (err) {
-      console.error("좋아요 처리 실패", err);
-    }
-  };
+const handleLike = async () => {
+  if (!userInfo) {
+    alert("로그인 후 이용 가능합니다.");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `http://localhost:8080/api/likes/${post_id}/user/${userInfo.id}/toggle`,
+      { method: "POST" }
+    );
+    const data = await res.json();
+    setLiked(data.likedByCurrentUser);
+    setLikeCount(data.likeCount);
+  } catch (err) {
+    console.error("좋아요 처리 실패", err);
+  }
+};
 
   if (!post) {
     return <div>로딩중...</div>;
@@ -104,12 +107,21 @@ export default function PostDetail() {
       <div className="post-detail-container">
         {/* 게시글 */}
         <h2 className="post-title">{post.title}</h2>
-        <div className="post-meta">
-          <span>작성자: {post.nickname}</span>
-          <span>{post.createdAt.replace("T", " ")}</span>
-          <span className="like-count">추천 수: {likeCount}</span>
-        </div>
-        <div className="post-content">{post.content}</div>
+      <div className="post-meta">
+  <div className="left">
+    <span className="author">{post.nickname}</span>
+    <span className="date">{post.createdAt.replace("T", " ")}</span>
+  </div>
+  <div className="right">
+    <span className="likes">추천 {likeCount}</span>
+    <span className="views">조회 12</span>  {/*{post.viewCount} */}
+    <span className="comments">댓글 {post.commentCount}</span>
+  </div>
+</div>
+        <div
+            className="post-content"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 {/* 버튼은 토글 전용 */}
         <div className="post-actions">
           <button

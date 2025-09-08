@@ -24,11 +24,18 @@
 .post-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
+.post-meta .left span {
+  margin-right: 10px;
+}
+
+.post-meta .right span {
+  margin-left: 10px;
+}
 /* 본문 */
 .post-content {
   font-size: 1rem;

@@ -3,6 +3,7 @@ package com.baseball.baseballcommunitybe.post.controller;
 import com.baseball.baseballcommunitybe.comment.service.CommentService;
 import com.baseball.baseballcommunitybe.like.service.LikeService;
 import com.baseball.baseballcommunitybe.post.dto.PostDetailResponseDto;
+import com.baseball.baseballcommunitybe.post.dto.PostRequestDto;
 import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.service.PostService;
@@ -53,6 +54,10 @@ public class PostController {
     ) {
         return postService.getPostDetail(postId, userId);
     }
-
+    // 게시글 작성 (등록)
+    @PostMapping("/insert")
+    public PostResponseDto insertPost(@RequestBody PostRequestDto requestDto) {
+        return postService.insertPost(requestDto);
+    }
 
 }

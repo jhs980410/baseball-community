@@ -1,0 +1,67 @@
+.post-create {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.post-create h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1976d2;
+}
+
+.post-create input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.post-create input[type="text"]:focus {
+  border-color: #1976d2;
+}
+
+/* Quill 에디터 */
+.ql-container {
+  min-height: 300px;
+  border-radius: 6px;
+}
+
+.ql-toolbar {
+  border-radius: 6px 6px 0 0;
+}
+
+.ql-editor {
+  min-height: 240px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 등록 버튼 */
+.post-create button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.post-create button:hover {
+  background-color: #135ba1;
+}

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Pagination from "../../components/Pagination/Pagination";
 import { teams } from "../../constants/teams"; // 팀 상수 불러오기
 import "./Posts.css";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface Post {
   id: number;
@@ -23,7 +24,7 @@ export default function Posts({ teamId }: PostsProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
+  const { userInfo } = useContext(AuthContext);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -51,19 +52,32 @@ export default function Posts({ teamId }: PostsProps) {
 
   return (
     <section className="posts">
-      <h2>{teamName} 게시판</h2>
-      <div className="post-list">
-        {posts.map((post) => (
-          <Link to={`/posts/${post.id}`} key={post.id} className="post-item">
-            <div className="post-title">{post.title}
-              <span className="comment-count">💬 {post.commentCount}</span>
-            </div>
-            <div className="post-meta">
-             <span className="date">{new Date(post.createdAt).toLocaleDateString()}</span>
-            </div>
+     <div className="posts-header">
+        <h2>{teamName} 게시판</h2>
+            {userInfo && (
+          <Link to="/posts/create" className="btn-create">
+            ✍ 글쓰기
           </Link>
-        ))}
-      </div>
+        )}
+    </div>
+      
+     <div className="post-list">
+  <div className="post-list-header">
+    <span className="col-index">번호</span>
+    <span className="col-title">제목</span>
+    <span className="col-date">작성일</span>
+    <span className="col-comments">댓글</span>
+  </div>
+  {posts.map((post, index) => (
+    <Link to={`/posts/${post.id}`} key={post.id} className="post-row">
+      <span className="post-index">{index + 1}</span>
+      <span className="post-title">{post.title}</span>
+      <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
+      <span className="post-comments">💬 {post.commentCount}</span>
+    </Link>
+  ))}
+</div>
+
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
     </section>
   );
