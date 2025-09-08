@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CommentResponseDto {
     private Long id;
+    private Long userId;
     private String content;
     private LocalDateTime date;
     private Long postId;
@@ -21,10 +22,11 @@ public class CommentResponseDto {
     public static CommentResponseDto forUser(Comment comment) {
         return new CommentResponseDto(
                 comment.getId(),
+                comment.getUser() != null ? comment.getUser().getId() : null,  // userId
                 comment.getContent(),
-                comment.getCreatedAt(),         // date
-                comment.getPost().getId(),      // postId
-                comment.getPost().getTitle()    // postTitle
+                comment.getCreatedAt(),
+                comment.getPost().getId(),
+                comment.getPost().getTitle()
         );
     }
 
@@ -32,10 +34,11 @@ public class CommentResponseDto {
     public static CommentResponseDto forPost(Comment comment) {
         return new CommentResponseDto(
                 comment.getId(),
+                comment.getUser() != null ? comment.getUser().getId() : null,  // userId
                 comment.getContent(),
-                comment.getCreatedAt(),         // date
-                comment.getPost().getId(),      // postId
-                comment.getPost().getTitle()    // postTitle
+                comment.getCreatedAt(),
+                null,   // 게시글 상세에는 postId 불필요
+                null    // 게시글 상세에는 postTitle 불필요
         );
     }
 

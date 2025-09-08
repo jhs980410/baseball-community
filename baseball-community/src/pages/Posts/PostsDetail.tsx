@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+
 import { AuthContext } from "../../contexts/AuthContext"; // 로그인 유저 Context
 import "./PostDetail.css";
-
+import { Link, useParams, useNavigate } from "react-router-dom";
 interface Comment {
   id: number;
   content: string;
@@ -12,6 +12,7 @@ interface Comment {
 
 interface Post {
   id: number;
+  userId: number;
   title: string;
   content: string;
   nickname: string;
@@ -30,7 +31,7 @@ export default function PostDetail() {
 
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
-
+  const navigate = useNavigate();
   // 게시글 + 댓글 불러오기
   const fetchPost = () => {
     if (!post_id) return;
@@ -97,7 +98,24 @@ const handleLike = async () => {
     console.error("좋아요 처리 실패", err);
   }
 };
+  const handleDelete = async () => {
+  if (!userInfo) {
+    alert("로그인 후 이용 가능합니다.");
+    return;
+  }
 
+  if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+    await fetch(`http://localhost:8080/api/posts/${post_id}`, {
+      method: "DELETE",
+    });
+    alert("삭제되었습니다.");
+    navigate("/"); // 삭제 후 목록 페이지로 이동
+  } catch (err) {
+    console.error("게시글 삭제 실패:", err);
+  }
+};
   if (!post) {
     return <div>로딩중...</div>;
   }
@@ -111,6 +129,12 @@ const handleLike = async () => {
   <div className="left">
     <span className="author">{post.nickname}</span>
     <span className="date">{post.createdAt.replace("T", " ")}</span>
+    {userInfo?.id === post.userId && (
+  <div className="post-actions">
+    <button onClick={() => navigate(`/posts/${post.id}/edit`)}>✏️ 수정</button>
+    <button onClick={handleDelete}>🗑 삭제</button>
+  </div>
+)}
   </div>
   <div className="right">
     <span className="likes">추천 {likeCount}</span>
@@ -160,9 +184,11 @@ const handleLike = async () => {
               onChange={(e) => setNewComment(e.target.value)}
               disabled={!userInfo}
             />
+            
             <button type="submit" disabled={!userInfo}>
               댓글 작성
             </button>
+            
           </form>
         </div>
       </div>

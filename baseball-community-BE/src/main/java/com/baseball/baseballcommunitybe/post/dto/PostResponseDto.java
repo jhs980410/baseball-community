@@ -13,6 +13,7 @@ public class PostResponseDto {
     private String title;
     private String content;
     private String nickname;
+    private Long userId;
     private String createdAt;
     private String updatedAt;
     private Long commentCount;
@@ -36,7 +37,7 @@ public class PostResponseDto {
     //  정적 팩토리 메서드 추가
 
     public static PostResponseDto from(Post post, Long commentCount, boolean likedByCurrentUser) {
-        //  XSS 방지: 위험한 스크립트 제거, 기본적인 스타일 태그 허용
+        // XSS 방지: 위험한 스크립트 제거, 기본적인 스타일 태그 허용
         String safeContent = Jsoup.clean(post.getContent(), Safelist.relaxed());
 
         return new PostResponseDto(
@@ -44,12 +45,14 @@ public class PostResponseDto {
                 post.getTitle(),
                 safeContent,   // 정제된 HTML 반환
                 post.getUser() != null ? post.getUser().getNickname() : "알 수 없음",
+                post.getUser() != null ? post.getUser().getId() : null, // 🔥 userId 추가
                 post.getCreatedAt() != null ? post.getCreatedAt().toString() : null,
                 post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null,
                 commentCount,
                 likedByCurrentUser
         );
     }
+
 
 }
 

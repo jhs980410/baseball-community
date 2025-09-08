@@ -92,6 +92,28 @@ public class PostService {
         postRepository.save(post);
         return PostResponseDto.from(post, 0L, false);
     }
+    @Transactional
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
+        postRepository.delete(post);
+    }
+
+    //  게시글 수정
+    @Transactional
+    public void updatePost(Long postId, String title, String content, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
+
+        // 작성자 본인인지 확인
+        if (!post.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인 글만 수정할 수 있습니다.");
+        }
+
+        post.setTitle(title);
+        post.setContent(content);
+        // updatedAt은 @PreUpdate 에서 자동 업데이트되게 해두면 편리
+    }
 
 }

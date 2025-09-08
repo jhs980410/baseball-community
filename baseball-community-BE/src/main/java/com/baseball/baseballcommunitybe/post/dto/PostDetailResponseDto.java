@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PostDetailResponseDto {
     private Long id;
+    private Long userId;
     private String title;
     private String content;
     private String nickname;
@@ -28,6 +29,7 @@ public class PostDetailResponseDto {
                                              boolean likedByCurrentUser) {
         return new PostDetailResponseDto(
                 post.getId(),
+                post.getUser() != null ? post.getUser().getId() : null,  // 안전 처리
                 post.getTitle(),
                 post.getContent(),
                 post.getUser() != null ? post.getUser().getNickname() : "알 수 없음",
@@ -39,6 +41,7 @@ public class PostDetailResponseDto {
                 comments
         );
     }
+
 }
 
 
