@@ -31,7 +31,7 @@ public class Post {
 
     //  KBO 팀 id
     @Column(name = "team_id", nullable = false)
-    private Byte teamId;
+    private Long teamId;
 
     @Column(nullable = false, length = 200)
     private String title;

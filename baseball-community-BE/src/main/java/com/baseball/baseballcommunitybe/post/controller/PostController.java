@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -49,9 +51,9 @@ public class PostController {
     // 단일 게시글
 
     // 단일 게시글 조회
-    @GetMapping("/{post_id}")
+    @GetMapping("/{postId}")
     public PostDetailResponseDto getPost(
-            @PathVariable("post_id") Long postId,
+            @PathVariable("postId") Long postId,
             @RequestParam(required = false) Long userId   // 프론트에서 전달
     ) {
         return postService.getPostDetail(postId, userId);
@@ -61,13 +63,19 @@ public class PostController {
     public PostResponseDto insertPost(@RequestBody PostRequestDto requestDto) {
         return postService.insertPost(requestDto);
     }
-
-
+    // 게시글 수정
+    @PutMapping("/{postId}")
+    public PostResponseDto updatePost(@PathVariable Long postId, @RequestBody PostRequestDto requestDto) throws AccessDeniedException {
+        return postService.updatePost(postId, requestDto);
+    }
+    //게시글 삭제
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
+
+
 
 
 

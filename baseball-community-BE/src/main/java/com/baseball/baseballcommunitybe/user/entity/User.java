@@ -27,6 +27,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
+
     public enum Role {
         USER, ADMIN, MODERATOR;
 
@@ -40,5 +42,11 @@ public class User {
 
     public enum Status {
         ACTIVE, SUSPENDED, DELETED
+    }
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    public void setRefreshToken(String newRefresh) {
+        this.refreshToken = newRefresh;
     }
 }

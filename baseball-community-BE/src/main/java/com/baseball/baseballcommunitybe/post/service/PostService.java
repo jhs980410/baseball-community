@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -84,7 +85,7 @@ public class PostService {
                 .title(dto.getTitle())
                 .content(dto.getContent())  // 그대로 저장
                 .user(user)
-                .teamId(dto.getTeamId().byteValue())
+                .teamId(dto.getTeamId().longValue())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -92,6 +93,8 @@ public class PostService {
         postRepository.save(post);
         return PostResponseDto.from(post, 0L, false);
     }
+
+
     @Transactional
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
@@ -102,18 +105,26 @@ public class PostService {
 
     //  게시글 수정
     @Transactional
-    public void updatePost(Long postId, String title, String content, Long userId) {
+    public PostResponseDto updatePost(Long postId, PostRequestDto requestDto) throws AccessDeniedException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
         // 작성자 본인인지 확인
-        if (!post.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("본인 글만 수정할 수 있습니다.");
+        if (!post.getUser().getId().equals(requestDto.getUserId())) {
+            throw new AccessDeniedException("본인 글만 수정할 수 있습니다.");
         }
 
-        post.setTitle(title);
-        post.setContent(content);
-        // updatedAt은 @PreUpdate 에서 자동 업데이트되게 해두면 편리
+        // 수정 가능 필드 반영
+        post.setTitle(requestDto.getTitle());
+        post.setContent(requestDto.getContent());
+        post.setTeamId(requestDto.getTeamId());
+
+        // JPA 영속성 컨텍스트에 의해 flush → update 실행
+        // 별도 save 호출 안 해도 @Transactional 종료 시점에 반영됨
+        // 그래도 명시적으로 save 하고 싶다면 아래 코드 사용:
+        // postRepository.save(post);
+
+        return new PostResponseDto(post);
     }
 
 }

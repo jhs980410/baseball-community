@@ -20,6 +20,7 @@ public class PostDetailResponseDto {
     private long commentCount;
     private long likeCount;
     private boolean likedByCurrentUser;
+    private Long teamId;
     private List<CommentSimpleDto> comments;
 
     public static PostDetailResponseDto from(Post post,
@@ -38,7 +39,9 @@ public class PostDetailResponseDto {
                 commentCount,
                 likeCount,
                 likedByCurrentUser,
+                post.getTeamId(),
                 comments
+
         );
     }
 

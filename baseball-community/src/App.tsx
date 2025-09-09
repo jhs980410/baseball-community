@@ -20,12 +20,13 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/posts/:post_id" element={<PostDetail />} />
+          <Route path="/posts/:postId" element={<PostDetail />} />
           <Route path="/posts/create" element={<PostCreate />} />
           <Route path="/posts/:postId/edit" element={<PostEdit />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/team/:id" element={<TeamPage />} />
-        </Route>
+          
+        </Route>  
       </Routes>
     </BrowserRouter>
     </AuthProvider>

@@ -2,10 +2,12 @@ package com.baseball.baseballcommunitybe.auth.Controller;
 
 import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
-import com.baseball.baseballcommunitybe.auth.dto.TokenResponse;
 
-import com.baseball.baseballcommunitybe.auth.Service.AuthService;
+import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
+import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
+import com.baseball.baseballcommunitybe.auth.service.AuthService;
 import com.baseball.baseballcommunitybe.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequestDto dto) {
@@ -37,22 +40,48 @@ public class AuthController {
         boolean available = !userService.existsByNickname(nickname);
         return ResponseEntity.ok(available);
     }
-    // ---------------- 로그인 ----------------
+
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto, HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(dto);
+    public ResponseEntity<TokenResponseDto> login(
+            @RequestBody LoginRequestDto dto,
+            HttpServletResponse response
+    ) {
+        TokenResponseDto tokens = authService.login(dto);
 
-        // JWT를 HttpOnly 쿠키로 저장
-        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getToken())
-                .httpOnly(true)       // JS 접근 차단
-                .secure(false)        // 배포(HTTPS) 시 true
-                .sameSite("Lax")      // CSRF 방어 기본값
-                .path("/")            // 모든 경로에서 쿠키 사용 가능
-                .maxAge(60 * 60)      // 1시간 유효
+        // Access Token → HttpOnly 쿠키에 저장
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", tokens.getAccessToken())
+                .httpOnly(true)
+                .secure(false) // 배포 시 true (HTTPS)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(60 * 15) // 15분
                 .build();
-
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(tokens);
     }
+
+    /**
+     * 로그아웃
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        authService.logout(accessToken);
+        return ResponseEntity.ok().build();
+    }
+    /**
+     * 토큰 재발급
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponseDto> refresh(@RequestParam Long userId) {
+        TokenResponseDto tokens = authService.refresh(userId);
+        return ResponseEntity.ok(tokens);
+    }
+
+
+
 }

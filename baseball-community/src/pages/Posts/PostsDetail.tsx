@@ -24,7 +24,7 @@ interface Post {
 }
 
 export default function PostDetail() {
-  const { post_id } = useParams<{ post_id: string }>();
+  const { postId } = useParams<{ postId: string }>();
   const { userInfo } = useContext(AuthContext);
   const [post, setPost] = useState<Post | null>(null);
   const [newComment, setNewComment] = useState("");
@@ -34,8 +34,8 @@ export default function PostDetail() {
   const navigate = useNavigate();
   // 게시글 + 댓글 불러오기
   const fetchPost = () => {
-    if (!post_id) return;
-    fetch(`http://localhost:8080/api/posts/${post_id}?userId=${userInfo?.id || ""}`)
+    if (!postId) return;
+    fetch(`http://localhost:8080/api/posts/${postId}?userId=${userInfo?.id || ""}`)
       .then((res) => res.json())
       .then((data) => {
         setPost(data);
@@ -47,12 +47,12 @@ export default function PostDetail() {
 
   useEffect(() => {
     fetchPost();
-  }, [post_id]);
+  }, [postId]);
 
   // 댓글 작성
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !post_id) return;
+    if (!newComment.trim() || !postId) return;
 
     if (!userInfo) {
       alert("로그인 후 댓글 작성이 가능합니다.");
@@ -64,7 +64,7 @@ export default function PostDetail() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          postId: Number(post_id),
+          postId: Number(postId),
           userId: userInfo.id,
           content: newComment,
         }),
@@ -88,7 +88,7 @@ const handleLike = async () => {
 
   try {
     const res = await fetch(
-      `http://localhost:8080/api/likes/${post_id}/user/${userInfo.id}/toggle`,
+      `http://localhost:8080/api/likes/${postId}/user/${userInfo.id}/toggle`,
       { method: "POST" }
     );
     const data = await res.json();
@@ -107,7 +107,7 @@ const handleLike = async () => {
   if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
   try {
-    await fetch(`http://localhost:8080/api/posts/${post_id}`, {
+    await fetch(`http://localhost:8080/api/posts/${postId}`, {
       method: "DELETE",
     });
     alert("삭제되었습니다.");

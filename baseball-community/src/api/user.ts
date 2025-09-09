@@ -2,12 +2,10 @@ import axios from "axios";
 
 const API_URL = "/api/auth";
 export interface LoginResponse {
-  token: string;
   id: number;
   email: string;
   nickname: string;
 }
-
 
 
 // 회원가입
@@ -21,15 +19,16 @@ export const login = async (
   data: { email: string; password: string }
 ): Promise<LoginResponse> => {
   const res = await axios.post<LoginResponse>(`${API_URL}/login`, data, {
-    withCredentials: true,
+    withCredentials: true, // 쿠키 자동 저장
   });
-  return res.data; // { token, id, email, nickname }
+  return res.data; // { id, email, nickname }
 };
 
 // 내 정보 조회
-export const getProfile = async (token: string) => {
-  const res = await axios.get(`${API_URL}/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+// 예시: 프로필 조회
+export const getProfile = async () => {
+  const res = await axios.get("/api/users/me", {
+    withCredentials: true, // 쿠키 자동 전송
   });
   return res.data;
 };

@@ -141,3 +141,73 @@
 .post-link:hover {
   color: #1565c0;
 }
+/* 프로필 수정 영역 */
+
+
+.settings .mypagetitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 8px;
+}
+
+.verify-password,
+.edit-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.verify-password label,
+.edit-profile label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.verify-password input,
+.edit-profile input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 60%;
+  box-sizing: border-box;
+}
+
+.verify-password button,
+.edit-profile button {
+  align-self: flex-start;
+  background-color: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.verify-password button:hover,
+.edit-profile button:hover {
+  background-color: #125ea7;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group input {
+  margin-top: 4px;
+}
+
+.edit-profile .form-group button {
+  margin-top: 4px;
+  background-color: #555;
+}
+
+.edit-profile .form-group button:hover {
+  background-color: #333;
+}

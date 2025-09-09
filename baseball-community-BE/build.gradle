@@ -53,6 +53,9 @@ dependencies {
     // Jsoup (HTML Sanitizer)
     implementation 'org.jsoup:jsoup:1.17.2'
 
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 

@@ -14,6 +14,7 @@ public class PostResponseDto {
     private String content;
     private String nickname;
     private Long userId;
+    private Long teamId;
     private String createdAt;
     private String updatedAt;
     private Long commentCount;
@@ -34,6 +35,15 @@ public class PostResponseDto {
         this.commentCount = commentCount;
     }
 
+    public PostResponseDto(Post post) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.userId = post.getUser().getId();
+        this.teamId = post.getTeamId();
+    }
+
+
     //  정적 팩토리 메서드 추가
 
     public static PostResponseDto from(Post post, Long commentCount, boolean likedByCurrentUser) {
@@ -45,7 +55,8 @@ public class PostResponseDto {
                 post.getTitle(),
                 safeContent,   // 정제된 HTML 반환
                 post.getUser() != null ? post.getUser().getNickname() : "알 수 없음",
-                post.getUser() != null ? post.getUser().getId() : null, // 🔥 userId 추가
+                post.getUser() != null ? post.getUser().getId() : null, //  userId 추가
+                post.getTeamId() != null ? post.getTeamId() : null,
                 post.getCreatedAt() != null ? post.getCreatedAt().toString() : null,
                 post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null,
                 commentCount,

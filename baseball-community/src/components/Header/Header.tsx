@@ -4,6 +4,7 @@ import LoginModal from "../../pages/Login/LoginModal";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { AuthContext } from "../../contexts/AuthContext"; // 전역 로그인 상태
 import "./Header.css";
+import axios from "axios";
 
 export default function Header() {
   const [showLogin, setShowLogin] = useState(false);
@@ -12,10 +13,16 @@ export default function Header() {
 
   useOutsideClick(loginRef, () => setShowLogin(false));
 
-  const handleLogout = () => {
-    // 필요시 서버 로그아웃 API 호출 (쿠키 제거)
-    setUserInfo(null);
-  };
+ const handleLogout = async () => {
+  try {
+    await axios.post("/api/auth/logout", {}, { withCredentials: true }); 
+    // 서버에서 Refresh Token 삭제 + Access Token 블랙리스트 등록
+
+    setUserInfo(null); // 프론트 상태 초기화
+  } catch (error) {
+    console.error("로그아웃 실패:", error);
+  }
+};
 
   return (
     <header className="header">

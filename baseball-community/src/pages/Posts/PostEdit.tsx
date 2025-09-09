@@ -2,59 +2,105 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../contexts/AuthContext";
+import { teams } from "../../constants/teams";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import "./PostEdit.css";
 
 export default function PostEdit() {
-  const { postId } = useParams();
+const { postId } = useParams<{ postId: string }>();
+  const [title, setTitle] = useState<string>("");
+  const [content, setContent] = useState<string>("");
+  const [teamId, setTeamId] = useState<string>("1");
   const navigate = useNavigate();
   const { userInfo } = useContext(AuthContext);
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-
-  // 기존 데이터 불러오기
+  // 기존 게시글 불러오기
   useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const res = await axios.get(`/api/posts/${postId}`);
-        setTitle(res.data.title);
-        setContent(res.data.content);
-      } catch (err) {
-        console.error("게시글 불러오기 실패:", err);
-      }
-    };
-    fetchPost();
-  }, [postId]);
+    if (!userInfo) {
+      alert("로그인 후 이용 가능합니다.");
+      navigate("/");
+      return;
+    }
+console.log(postId+"이거널?");
+    axios.get(`/api/posts/${postId}`).then((res) => {
+      setTitle(res.data.title);
+      setContent(res.data.content);
+      setTeamId(String(res.data.teamId));;
+    });
+  }, [userInfo, navigate, postId]);
 
-  // 수정 요청
-  const handleUpdate = async () => {
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 입력해주세요.");
+      return;
+    }
+
     try {
-      await axios.put(`/api/posts/${postId}`, {
+      const payload = {
         title,
         content,
-        userId: userInfo.id, // 인증된 사용자
-      });
-      alert("게시글이 수정되었습니다.");
-      navigate(`/posts/${postId}`); // 수정 후 상세 페이지로 이동
-    } catch (err) {
-      console.error("수정 실패:", err);
+        userId: userInfo?.id,
+        teamId: Number(teamId),
+      };
+     console.log("보내는 payload:", payload);
+      await axios.put(`/api/posts/${postId}`, payload);
+
+      alert("게시글이 수정되었습니다!");
+      navigate("/"); //  전체 게시판으로 이동
+    } catch (error) {
+      console.error("게시글 수정 실패:", error);
+      alert("게시글 수정 중 오류가 발생했습니다.");
     }
   };
 
   return (
-    <div className="post-edit">
-      <h2>게시글 수정</h2>
+    <main className="post-edit">
+      <h2 className="form-title">게시글 수정</h2>
+
+      {/* 팀 선택 라디오 */}
+      <div className="team-select">
+        <strong>팀 선택:</strong>
+        <div className="radio-group">
+          {teams
+            .filter((t) => t.id !== "all")
+            .map((team) => (
+              <label key={team.id}>
+                <input
+                  type="radio"
+                  name="team"
+                  value={team.id}
+                  checked={teamId === team.id}
+                  onChange={() => setTeamId(team.id)}
+                />
+                {team.name}
+              </label>
+            ))}
+        </div>
+      </div>
+
+      {/* 제목 입력 */}
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="제목을 입력하세요"
+        className="title-input"
       />
-      <textarea
+
+      {/* 본문 입력 */}
+      <ReactQuill
+        theme="snow"
         value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="내용을 입력하세요"
+        onChange={(value: string) => setContent(value)}
+        placeholder="내용을 입력하세요..."
+        className="editor"
       />
-      <button onClick={handleUpdate}>수정 완료</button>
-    </div>
+
+      {/* 수정 버튼 */}
+      <button onClick={handleSubmit} className="submit-btn">
+        수정 완료
+      </button>
+    </main>
   );
 }
