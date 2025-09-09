@@ -6,6 +6,8 @@ import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -131,4 +133,15 @@ public class AuthService {
         return new TokenResponseDto(newAccess, newRefresh, user.getId(), user.getEmail(), user.getNickname());
     }
 
+    //비밀번호 검증
+    public boolean verifyPassword(Long userId, String rawPassword) {
+        return userRepository.findById(userId)
+                .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
+                .orElse(false);
+    }
+    //토큰꺼내기
+
+    public Long getUserIdFromToken(String token) {
+        return jwtTokenProvider.getUserIdFromToken(token);
+    }
 }

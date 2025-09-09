@@ -43,7 +43,7 @@ public class User {
     public enum Status {
         ACTIVE, SUSPENDED, DELETED
     }
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
     public void setRefreshToken(String newRefresh) {

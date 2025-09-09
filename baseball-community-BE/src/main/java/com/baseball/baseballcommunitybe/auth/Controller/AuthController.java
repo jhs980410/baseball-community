@@ -1,6 +1,7 @@
 package com.baseball.baseballcommunitybe.auth.Controller;
 
 import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
+import com.baseball.baseballcommunitybe.auth.dto.PasswordRequest;
 import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
 
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
@@ -83,5 +84,14 @@ public class AuthController {
     }
 
 
-
+    @PostMapping("/verify-password")
+    public ResponseEntity<Boolean> verifyPassword(
+            HttpServletRequest request,
+            @RequestBody PasswordRequest req
+    ) {
+        String token = jwtTokenProvider.resolveToken(request);
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+        boolean result = authService.verifyPassword(userId, req.getPassword());
+        return ResponseEntity.ok(result);
+    }
 }

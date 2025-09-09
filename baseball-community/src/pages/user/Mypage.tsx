@@ -159,7 +159,7 @@ export default function Mypage() {
     }
 
     try {
-      await axios.put(`/api/users/${userInfo?.id}`, {
+      await axios.put(`/api/users/me/${userInfo?.id}`, {
         nickname: newNickname || userInfo?.nickname,
         password: newPassword || undefined,
       });
