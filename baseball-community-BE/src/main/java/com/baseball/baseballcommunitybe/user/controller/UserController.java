@@ -50,6 +50,7 @@ public class UserController {
      */
     @DeleteMapping("/me")
     public ResponseEntity<String> deleteMyAccount(HttpServletRequest request) {
+        System.out.println("호출됨");
         userService.deleteMyAccount(request);
         return ResponseEntity.ok("회원 탈퇴 완료");
     }

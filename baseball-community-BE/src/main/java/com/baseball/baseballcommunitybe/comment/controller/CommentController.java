@@ -30,7 +30,7 @@ public class CommentController {
             @PathVariable Long userId,
             Pageable pageable
     ) {
-        return ResponseEntity.ok(commentService.findByUser(userId, pageable));
+        return ResponseEntity.ok(commentService.findByUserIdOrderByCreatedAtDesc(userId, pageable));
     }
 
     // 댓글 작성

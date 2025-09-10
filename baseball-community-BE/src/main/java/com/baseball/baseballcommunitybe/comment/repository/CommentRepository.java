@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByUserId(Long userId);
+
     List<Comment> findByPostId(Long postId);
 
     // 특정 게시글 댓글 목록 (유저 닉네임까지 페치조인)
@@ -17,6 +18,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByPostIdWithUser(@Param("postId") Long postId);
 
 
+    @Query("SELECT c FROM Comment c WHERE c.user.id = :userId ORDER BY c.createdAt ASC")
+    Page<Comment> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);
+    // Pageable 지원 O
     Page<Comment> findByUserId(Long userId, Pageable pageable);
+
+
     Long countByPostId(Long postId);  // 게시글별 댓글 개수 카운트
 }

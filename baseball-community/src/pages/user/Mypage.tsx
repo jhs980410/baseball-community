@@ -219,6 +219,12 @@ export default function Mypage() {
           >
             프로필 수정
           </li>
+           <li
+            className={activeTab === "delete" ? "active" : ""}
+            onClick={() => setActiveTab("delete")}
+          >
+            회원 탈퇴
+          </li>
         </ul>
       </aside>
 
@@ -318,7 +324,7 @@ export default function Mypage() {
             <h3 className="mypagetitle">프로필 수정</h3>
 
             {!verified ? (
-              // Step 1: 기존 비밀번호 확인
+              // 기존 비밀번호 확인
               <div className="verify-password">
                 <label>비밀번호 확인</label>
                 <input
@@ -330,7 +336,7 @@ export default function Mypage() {
                 <button onClick={handleVerifyPassword}>확인</button>
               </div>
             ) : (
-              // Step 2: 수정 가능 UI
+              //  수정 가능 UI
               <div className="edit-profile">
                 {/* 닉네임 변경 */}
                 <div className="form-group">
@@ -365,7 +371,49 @@ export default function Mypage() {
               </div>
             )}
           </div>
+          
         )}
+        {activeTab === "delete" && (
+  <div className="delete-account">
+    <h3 className="mypagetitle">회원 탈퇴</h3>
+
+    <p className="warning">
+      ⚠ 회원 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다. 
+      정말 탈퇴하시겠습니까?
+    </p>
+
+    <div className="form-group">
+      <label>비밀번호 확인</label>
+      <input
+        type="password"
+        placeholder="비밀번호 입력"
+        value={currentPassword}
+        onChange={(e) => setCurrentPassword(e.target.value)}
+      />
+    </div>
+
+    <button
+      className="btn-delete"
+      onClick={async () => {
+        try {
+          await axios.delete("/api/users/me", {
+                data: { password: currentPassword },
+                withCredentials: true,   //  쿠키 전송 허용
+              });
+          alert("회원 탈퇴가 완료되었습니다.");
+          // 로그아웃 처리 or 메인 페이지 이동
+          window.location.href = "/";
+        } catch (err) {
+          console.error("회원 탈퇴 실패:", err);
+          alert("회원 탈퇴 중 오류가 발생했습니다.");
+        }
+      }}
+    >
+      회원 탈퇴
+    </button>
+  </div>
+)}
+
       </section>
     </div>
   );

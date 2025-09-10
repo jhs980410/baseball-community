@@ -211,3 +211,61 @@
 .edit-profile .form-group button:hover {
   background-color: #333;
 }
+
+
+/* ===== 회원 탈퇴 영역 ===== */
+.delete-account {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.delete-account .mypagetitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #1565c0;
+  color: #1565c0;
+  padding-bottom: 6px;
+}
+
+.delete-account .warning {
+  background-color: #fff3f3;
+  border: 1px solid #f5c2c2;
+  color: #b71c1c;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.delete-account .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 300px;
+}
+
+.delete-account input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.btn-delete {
+  align-self: flex-start;
+  background-color: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-delete:hover {
+  background-color: #b71c1c;
+}
+

@@ -22,6 +22,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/posts/**").permitAll()
                         .requestMatchers("/api/comments/**").permitAll()
                         .requestMatchers("/api/likes/**").permitAll()
+                                .requestMatchers("/api/users/**").permitAll()
                         .anyRequest().authenticated() // 로그인/회원가입은 허용
                         // 나머지는 인증 필요
                 );

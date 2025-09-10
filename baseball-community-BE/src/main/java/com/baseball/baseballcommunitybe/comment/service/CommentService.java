@@ -29,7 +29,7 @@ public class CommentService {
     /**
      * 마이페이지: 특정 유저의 댓글 목록 (페이징)
      */
-    public Page<CommentResponseDto> findByUser(Long userId, Pageable pageable) {
+    public Page<CommentResponseDto> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable) {
         return commentRepository.findByUserId(userId, pageable)
                 .map(CommentResponseDto::forUser);
     }
