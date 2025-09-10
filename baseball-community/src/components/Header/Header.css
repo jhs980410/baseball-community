@@ -26,14 +26,42 @@
 
 
 /* 검색창 */
-.search input {
-  width: 100%;
-  max-width: 500px;  /* 검색창 넓이 제한 */
-  margin-left: 120px;
-  padding: 10px 12px;
-  font-size: 1rem;
-  border: 1px solid #aaa;
+/* Header.css */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
   border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.search-btn {
+  background-color: #1a3c7c; /* 네이비 계열 */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-btn:hover {
+  background-color: #305fa8; /* hover 시 밝은 네이비 */
+}
+
+.search-type {
+  border: none;
+  padding: 8px;
+  background: #f8f8f8;
+  color: #333;
 }
 
 /* 로그인 버튼 영역 */

@@ -33,17 +33,25 @@ export default function PostDetail() {
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
   // 게시글 + 댓글 불러오기
-  const fetchPost = () => {
-    if (!postId) return;
-    fetch(`http://localhost:8080/api/posts/${postId}?userId=${userInfo?.id || ""}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPost(data);
-        setLikeCount(data.likeCount);
-        setLiked(data.likedByCurrentUser);
-          })
-      .catch((err) => console.error("게시글 불러오기 실패:", err));
-  };
+ const fetchPost = () => {
+  if (!postId) return;
+
+  const url = userInfo
+    ? `http://localhost:8080/api/posts/${postId}?userId=${userInfo.id}`
+    : `http://localhost:8080/api/posts/${postId}`;
+
+  fetch(url, { credentials: "include" })
+    .then((res) => {
+      if (!res.ok) throw new Error("권한 오류");
+      return res.json();
+    })
+    .then((data) => {
+      setPost(data);
+      setLikeCount(data.likeCount);
+      setLiked(data.likedByCurrentUser);
+    })
+    .catch((err) => console.error("게시글 불러오기 실패:", err));
+};
 
   useEffect(() => {
     fetchPost();

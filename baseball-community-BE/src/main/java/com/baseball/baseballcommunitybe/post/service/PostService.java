@@ -127,4 +127,10 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
+    //검색
+
+    public Page<PostResponseDto> searchPosts(String type, String keyword, int page, int size) {
+        return postRepository.searchPosts(type, keyword, PageRequest.of(page, size));
+    }
+
 }

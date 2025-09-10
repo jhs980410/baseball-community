@@ -1,8 +1,8 @@
 import React, { useState, useRef, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // 검색 후 이동 위해
 import LoginModal from "../../pages/Login/LoginModal";
 import useOutsideClick from "../../hooks/useOutsideClick";
-import { AuthContext } from "../../contexts/AuthContext"; // 전역 로그인 상태
+import { AuthContext } from "../../contexts/AuthContext";
 import "./Header.css";
 import axios from "axios";
 
@@ -11,18 +11,28 @@ export default function Header() {
   const loginRef = useRef<HTMLDivElement>(null);
   const { userInfo, setUserInfo } = useContext(AuthContext);
 
+  // 🔎 검색 상태
+  const [keyword, setKeyword] = useState("");
+  const [searchType, setSearchType] = useState("all");
+  const navigate = useNavigate();
+
   useOutsideClick(loginRef, () => setShowLogin(false));
 
- const handleLogout = async () => {
-  try {
-    await axios.post("/api/auth/logout", {}, { withCredentials: true }); 
-    // 서버에서 Refresh Token 삭제 + Access Token 블랙리스트 등록
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout", {}, { withCredentials: true });
+      setUserInfo(null);
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
 
-    setUserInfo(null); // 프론트 상태 초기화
-  } catch (error) {
-    console.error("로그아웃 실패:", error);
-  }
-};
+  // 🔎 검색 실행
+  const handleSearch = () => {
+    if (!keyword.trim()) return;
+    navigate(`/search?type=${searchType}&keyword=${encodeURIComponent(keyword)}`);
+    // 검색 페이지로 이동 → /search 라우트에서 API 호출
+  };
 
   return (
     <header className="header">
@@ -31,28 +41,45 @@ export default function Header() {
           <Link to="/">KBO 다모여라</Link>
         </div>
 
-        <div className="search">
-          <input type="text" placeholder="검색하기" />
+        {/* 검색창 */}
+        <div className="search-bar">
+          <select
+            className="search-type"
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value)}
+          >
+            <option value="all">전체</option>
+            <option value="title">제목</option>
+            <option value="nickname">작성자</option>
+          </select>
+
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            className="search-input"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+
+          <button className="search-btn" onClick={handleSearch}>
+            🔍
+          </button>
         </div>
 
-        {/* 로그인 / 로그아웃 UI 전환 */}
+        {/* 로그인 / 로그아웃 */}
         <div className="login" ref={loginRef}>
           {userInfo ? (
-            <>
             <div className="auth-controls">
               <span className="nickname">{userInfo.nickname} 님</span>
               <Link to="/mypage" className="btn">마이페이지</Link>
               <button className="btn logout" onClick={handleLogout}>로그아웃</button>
             </div>
-
-            </>
           ) : (
-            <>
             <div className="auth-controls">
               <button className="btn login" onClick={() => setShowLogin(!showLogin)}>로그인</button>
-              </div>
               {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-            </>
+            </div>
           )}
         </div>
       </div>

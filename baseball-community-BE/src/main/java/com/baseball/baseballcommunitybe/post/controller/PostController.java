@@ -21,8 +21,7 @@ import java.nio.file.AccessDeniedException;
 public class PostController {
 
     private final PostService postService;
-    private final CommentService commentService;
-    private final LikeService likeService;
+
     @GetMapping
     public Page<PostResponseDto> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -76,7 +75,16 @@ public class PostController {
     }
 
 
-
+    //검색 
+    @GetMapping("/search")
+    public Page<PostResponseDto> searchPosts(
+            @RequestParam(defaultValue = "all") String type,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return postService.searchPosts(type, keyword, page, size);
+    }
 
 
 }
