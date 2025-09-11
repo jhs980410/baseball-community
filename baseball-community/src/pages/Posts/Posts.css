@@ -16,6 +16,7 @@
   width: 100%;
   border-collapse: collapse;
 }
+
 .posts-header {
   display: flex;
   justify-content: space-between; /* 제목 왼쪽, 버튼 오른쪽 */
@@ -36,10 +37,12 @@
 .btn-create:hover {
   background: #0056b3;
 }
+
 /* 헤더 */
 .post-list-header {
   display: grid;
-  grid-template-columns: 60px 1fr 150px 100px; /* 번호 | 제목 | 작성일 | 댓글 */
+  grid-template-columns: 60px 1fr 150px 100px 80px 80px; 
+  /* 번호 | 제목 | 작성일 | 댓글 | 추천 | 조회 */
   font-weight: bold;
   border-bottom: 2px solid #333;
   padding: 12px 8px;
@@ -53,7 +56,8 @@
 /* 데이터 행 */
 .post-row {
   display: grid;
-  grid-template-columns: 60px 1fr 150px 100px; /* 헤더와 동일 */
+  grid-template-columns: 60px 1fr 150px 100px 80px 80px; 
+  /* 번호 | 제목 | 작성일 | 댓글 | 추천 | 조회 */
   align-items: center;
   padding: 12px 8px;
   border-bottom: 1px solid #eee;
@@ -69,7 +73,9 @@
 /* 각 컬럼 정렬 */
 .post-index,
 .post-date,
-.post-comments {
+.post-comments,
+.post-likes,
+.post-views {
   text-align: center;
 }
 
@@ -83,6 +89,8 @@
   text-decoration: underline;
 }
 
-.post-comments {
+.post-comments,
+.post-likes,
+.post-views {
   color: #555;
 }

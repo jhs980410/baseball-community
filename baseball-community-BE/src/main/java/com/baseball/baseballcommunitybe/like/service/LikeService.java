@@ -4,7 +4,9 @@ import com.baseball.baseballcommunitybe.like.dto.LikeResponseDto;
 import com.baseball.baseballcommunitybe.like.entity.Like;
 import com.baseball.baseballcommunitybe.like.repository.LikeRepository;
 import com.baseball.baseballcommunitybe.post.entity.Post;
+import com.baseball.baseballcommunitybe.post.entity.PostStatus;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
+import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository; //  추가
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostStatusRepository postStatusRepository; //  추가
 
     /**
      * 마이페이지 - 내가 좋아요한 글 (페이징)
@@ -47,17 +50,24 @@ public class LikeService {
 
         Optional<Like> existing = likeRepository.findByPost_IdAndUser_Id(postId, userId);
 
+        boolean liked;
         if (existing.isPresent()) {
             // 좋아요 취소
             likeRepository.delete(existing.get());
+            postStatusRepository.decrementLikeCount(postId); //  post_status 좋아요 -1
+            liked = false;
         } else {
             // 좋아요 추가
             Like like = new Like(post, user);
             likeRepository.save(like);
+            postStatusRepository.incrementLikeCount(postId); //  post_status 좋아요 +1
+            liked = true;
         }
 
-        long likeCount = likeRepository.countByPost_Id(postId);
-        boolean liked = likeRepository.existsByPost_IdAndUser_Id(postId, userId);
+        //  likeCount는 post_status에서 가져오기
+        long likeCount = postStatusRepository.findById(postId)
+                .map(PostStatus::getLikeCount)
+                .orElse(0L);
 
         return LikeResponseDto.from(post, liked, likeCount);
     }
@@ -66,6 +76,8 @@ public class LikeService {
      * 게시글 좋아요 개수 카운트
      */
     public long countLikes(Long postId) {
-        return likeRepository.countByPost_Id(postId);
+        return postStatusRepository.findById(postId)
+                .map(PostStatus::getLikeCount)
+                .orElse(0L);
     }
 }

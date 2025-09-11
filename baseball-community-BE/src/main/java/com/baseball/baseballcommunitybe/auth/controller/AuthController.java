@@ -1,9 +1,8 @@
-package com.baseball.baseballcommunitybe.auth.Controller;
+package com.baseball.baseballcommunitybe.auth.controller;
 
 import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.PasswordRequest;
 import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
-
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.auth.service.AuthService;
@@ -19,23 +18,32 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequestDto dto) {
         authService.signup(dto);
         return ResponseEntity.ok("회원가입 성공");
     }
-    // 이메일 중복확인
+
+    /**
+     * 이메일 중복 확인
+     */
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
         boolean available = !userService.existsByEmail(email);
         return ResponseEntity.ok(available);
     }
 
-    // 닉네임 중복확인
+    /**
+     * 닉네임 중복 확인
+     */
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean available = !userService.existsByNickname(nickname);
@@ -52,7 +60,7 @@ public class AuthController {
     ) {
         TokenResponseDto tokens = authService.login(dto);
 
-        // Access Token → HttpOnly 쿠키에 저장
+        // Access Token → HttpOnly 쿠키 저장
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", tokens.getAccessToken())
                 .httpOnly(true)
                 .secure(false) // 배포 시 true (HTTPS)
@@ -60,6 +68,7 @@ public class AuthController {
                 .path("/")
                 .maxAge(60 * 15) // 15분
                 .build();
+
         response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok(tokens);
@@ -71,9 +80,10 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
-        authService.logout(accessToken);
+        authService.logout(accessToken); // 내부에서 Redis blacklist 처리
         return ResponseEntity.ok().build();
     }
+
     /**
      * 토큰 재발급
      */
@@ -83,7 +93,9 @@ public class AuthController {
         return ResponseEntity.ok(tokens);
     }
 
-
+    /**
+     * 비밀번호 확인
+     */
     @PostMapping("/verify-password")
     public ResponseEntity<Boolean> verifyPassword(
             HttpServletRequest request,

@@ -20,6 +20,7 @@ interface Post {
   commentCount: number;
   comments: Comment[];
   likeCount: number;            // 좋아요 수
+  viewCount: number;
   likedByCurrentUser: boolean;  // 현재 유저가 눌렀는지 여부
 }
 
@@ -146,7 +147,7 @@ const handleLike = async () => {
   </div>
   <div className="right">
     <span className="likes">추천 {likeCount}</span>
-    <span className="views">조회 12</span>  {/*{post.viewCount} */}
+    <span className="views">조회 {post.viewCount}</span>  {/*{post.viewCount} */}
     <span className="comments">댓글 {post.commentCount}</span>
   </div>
 </div>

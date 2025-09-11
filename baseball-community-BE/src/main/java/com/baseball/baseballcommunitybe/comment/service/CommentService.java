@@ -7,6 +7,7 @@ import com.baseball.baseballcommunitybe.comment.entity.Comment;
 import com.baseball.baseballcommunitybe.comment.repository.CommentRepository;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
+import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository; //  추가
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostStatusRepository postStatusRepository; //  추가
 
     /**
      * 마이페이지: 특정 유저의 댓글 목록 (페이징)
@@ -46,7 +48,6 @@ public class CommentService {
     /**
      * 댓글 작성
      */
-
     @Transactional
     public CommentResponseDto create(CommentRequestDto dto) {
         Post post = postRepository.findById(dto.getPostId())
@@ -72,9 +73,15 @@ public class CommentService {
         Comment comment = new Comment(post, user, dto.getContent());
         commentRepository.save(comment);
 
+        //  post_status 댓글 수 +1
+        postStatusRepository.incrementCommentCount(dto.getPostId());
+
         return CommentResponseDto.forPost(comment);
     }
 
+    /**
+     * 댓글 삭제
+     */
     @Transactional
     public void delete(Long commentId, Long userId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
@@ -85,10 +92,13 @@ public class CommentService {
             throw new SecurityException("삭제 권한이 없습니다.");
         }
 
-
         // 완전 삭제를 원한다면 ↓
-         commentRepository.deleteById(commentId);
+        commentRepository.deleteById(commentId);
+
+        //  post_status 댓글 수 -1
+        postStatusRepository.decrementCommentCount(comment.getPost().getId());
     }
+
     /**
      * 관리자/대시보드: 게시글 내 간단 댓글 리스트
      */

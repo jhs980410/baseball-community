@@ -12,6 +12,7 @@ export default function MainLayout() {
       {/* 페이지별로 바뀌는 부분 */}
       <main className="main-content">
         <Outlet />
+        
       </main>
     </div>
   );

@@ -24,14 +24,16 @@ public class PostResponseDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
+    //posts_status 에서 가져올값들
     private Long commentCount;
+    private Long likeCount;
+    private Long viewCount;
     private boolean likedByCurrentUser;
 
     // JPQL Constructor Expression에서 사용될 생성자
     public PostResponseDto(Long id, String title, String content,
                            String nickname, LocalDateTime createdAt, LocalDateTime updatedAt,
-                           Long commentCount) {
+                           Long commentCount, Long likeCount, Long viewCount) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -39,6 +41,8 @@ public class PostResponseDto {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.commentCount = commentCount;
+        this.likeCount = likeCount;
+        this.viewCount = viewCount;
     }
 
     // 엔티티 기반 생성자
@@ -53,7 +57,7 @@ public class PostResponseDto {
     }
 
     // 정적 팩토리 메서드
-    public static PostResponseDto from(Post post, Long commentCount, boolean likedByCurrentUser) {
+    public static PostResponseDto from(Post post, Long commentCount, Long likeCount, Long viewCount, boolean likedByCurrentUser) {
         // XSS 방지: 위험한 스크립트 제거, 기본적인 스타일 태그 허용
         String safeContent = Jsoup.clean(post.getContent(), Safelist.relaxed());
 
@@ -67,7 +71,11 @@ public class PostResponseDto {
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentCount,
+                likeCount,
+                viewCount,
                 likedByCurrentUser
         );
     }
+
+
 }

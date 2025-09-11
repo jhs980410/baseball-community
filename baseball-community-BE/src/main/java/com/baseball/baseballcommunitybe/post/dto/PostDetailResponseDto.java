@@ -19,6 +19,7 @@ public class PostDetailResponseDto {
     private String updatedAt;
     private long commentCount;
     private long likeCount;
+    private long viewCount;              //  추가됨
     private boolean likedByCurrentUser;
     private Long teamId;
     private List<CommentSimpleDto> comments;
@@ -27,10 +28,11 @@ public class PostDetailResponseDto {
                                              List<CommentSimpleDto> comments,
                                              long commentCount,
                                              long likeCount,
+                                             long viewCount,              //  추가
                                              boolean likedByCurrentUser) {
         return new PostDetailResponseDto(
                 post.getId(),
-                post.getUser() != null ? post.getUser().getId() : null,  // 안전 처리
+                post.getUser() != null ? post.getUser().getId() : null,
                 post.getTitle(),
                 post.getContent(),
                 post.getUser() != null ? post.getUser().getNickname() : "알 수 없음",
@@ -38,13 +40,10 @@ public class PostDetailResponseDto {
                 post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null,
                 commentCount,
                 likeCount,
+                viewCount,              // ✅ 매핑
                 likedByCurrentUser,
                 post.getTeamId(),
                 comments
-
         );
     }
-
 }
-
-

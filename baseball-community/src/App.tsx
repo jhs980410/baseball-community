@@ -10,6 +10,7 @@ import TeamPage from "./pages/board/TeamPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import PostCreate from "./pages/Posts/PostCreate";
 import PostEdit from "./pages/Posts/PostEdit";
+import SearchPage from "./pages/board/SearchPage";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <Route path="/posts/:postId/edit" element={<PostEdit />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/team/:id" element={<TeamPage />} />
-          
+          <Route path="/search" element={<SearchPage />} />
         </Route>  
       </Routes>
     </BrowserRouter>
