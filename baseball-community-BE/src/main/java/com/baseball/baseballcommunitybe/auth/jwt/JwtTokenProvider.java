@@ -20,7 +20,7 @@ public class JwtTokenProvider {
     private final PublicKey publicKey;
 
     // 토큰 만료시간
-    private final long ACCESS_EXP = 1000L * 60 * 15;   // 15분
+    private final long ACCESS_EXP = 1000L * 60 * 15;           // 15분
     private final long REFRESH_EXP = 1000L * 60 * 60 * 24 * 14; // 2주
 
     public JwtTokenProvider() throws Exception {
@@ -43,42 +43,60 @@ public class JwtTokenProvider {
         this.publicKey = keyFactory.generatePublic(pubKeySpec);
     }
 
-    // Access Token 생성 (짧게)
+    //  Access Token 생성 (role 포함)
     public String createAccessToken(Long userId, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))   // userId를 subject로
+                .setSubject(String.valueOf(userId))   // userId → subject
                 .claim("role", role)
+                .claim("type", "access")               // 구분을 위해 type 추가
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXP)) // 15분
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXP))
                 .signWith(privateKey, SignatureAlgorithm.RS256)
                 .compact();
     }
 
-    // Refresh Token 생성 (길게)
+    //  Refresh Token 생성 (role 불필요, 최소 정보만)
     public String createRefreshToken(Long userId) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .claim("type", "refresh")              // 구분을 위해 type 추가
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXP)) // 2주
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXP))
                 .signWith(privateKey, SignatureAlgorithm.RS256)
                 .compact();
     }
 
-    // 토큰 파싱
+    //  토큰 파싱 (예외 처리 강화)
     public Claims parseToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(publicKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(publicKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw e; // 만료된 토큰 → 따로 처리
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
     }
 
-    // 토큰에서 userId 추출
+    //  토큰에서 userId 추출
     public Long getUserIdFromToken(String token) {
         return Long.valueOf(parseToken(token).getSubject());
     }
 
-    // 만료 여부 확인
+    //  토큰에서 role 추출
+    public String getRoleFromToken(String token) {
+        return (String) parseToken(token).get("role");
+    }
+
+    // 토큰 타입 추출 (access / refresh)
+    public String getTokenType(String token) {
+        return (String) parseToken(token).get("type");
+    }
+
+    //  만료 여부 확인
     public boolean isExpired(String token) {
         try {
             return parseToken(token).getExpiration().before(new Date());
@@ -87,13 +105,21 @@ public class JwtTokenProvider {
         }
     }
 
-    // 남은 만료시간 조회
+    //  남은 만료시간 조회
     public long getExpiration(String token) {
         Date expiration = parseToken(token).getExpiration();
         return expiration.getTime() - System.currentTimeMillis();
     }
-    //토큰꺼내기
+
+    //  토큰 추출 (Authorization 헤더 + 쿠키 둘 다 지원)
     public String resolveToken(HttpServletRequest request) {
+        // 1. Authorization 헤더 우선
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+
+        // 2. 쿠키에서 ACCESS_TOKEN 확인
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("ACCESS_TOKEN".equals(cookie.getName())) {
@@ -101,6 +127,6 @@ public class JwtTokenProvider {
                 }
             }
         }
-        return null; // 없으면 null 반환
+        return null; // 없으면 null
     }
 }

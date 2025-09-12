@@ -30,33 +30,32 @@ export default function Posts({ teamId, searchType, keyword }: PostsProps) {
   const [totalPages, setTotalPages] = useState(0);
   const { userInfo } = useContext(AuthContext);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        let url = "";
+useEffect(() => {
+  const fetchPosts = async () => {
+    try {
+      let url = "";
 
-        if (keyword && searchType) {
-          //  검색 API
-          url = `/api/posts/search?type=${searchType}&keyword=${keyword}&page=${page}&size=10`;
-        } else if (teamId && teamId !== "all") {
-          //  특정 팀 게시판
-          url = `/api/posts/team/${teamId}?page=${page}&size=10`;
-        } else {
-          //  전체 게시판
-          url = `/api/posts?page=${page}&size=10`;
-        }
-
-        const res = await axios.get(url);
-        setPosts(res.data.content);
-        setTotalPages(res.data.totalPages);
-      } catch (error) {
-        console.error("게시글 로딩 실패:", error);
+      if (keyword && searchType) {
+        // 검색 API → /api/posts?...
+        url = `/api/posts?type=${searchType}&keyword=${keyword}&page=${page}&size=10`;
+      } else if (teamId && teamId !== "all") {
+        // 팀별 게시판 → /api/posts/teams/{teamId}
+        url = `/api/posts/teams/${teamId}?page=${page}&size=10`;
+      } else {
+        // 전체 게시판
+        url = `/api/posts?page=${page}&size=10`;
       }
-    };
 
-    fetchPosts();
-  }, [teamId, searchType, keyword, page]);
+      const res = await axios.get(url, { withCredentials: true });
+      setPosts(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (error) {
+      console.error("게시글 로딩 실패:", error);
+    }
+  };
 
+  fetchPosts();
+}, [teamId, searchType, keyword, page]);
   // 팀 ID → 팀 이름 매핑
   const teamName =
     teamId && teamId !== "all"

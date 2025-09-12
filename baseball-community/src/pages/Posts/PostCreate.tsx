@@ -18,7 +18,7 @@ export default function PostCreate() {
   useEffect(() => {
     if (!userInfo) {
       alert("로그인 후 이용 가능합니다.");
-      navigate("/"); 
+      navigate("/");
     }
   }, [userInfo, navigate]);
 
@@ -32,14 +32,13 @@ export default function PostCreate() {
       const payload = {
         title,
         content,
-        userId: userInfo?.id,
-        teamId: Number(teamId), // 선택한 팀 ID
+        teamId: Number(teamId), //  userId 제거
       };
 
-      await axios.post("/api/posts/insert", payload);
+      await axios.post("/api/posts", payload, { withCredentials: true });
 
       alert("게시글이 등록되었습니다!");
-      navigate(`/team/${teamId}`); // 선택한 팀 게시판으로 이동
+      navigate(`/teams/${teamId}`); //  RESTful 경로
     } catch (error) {
       console.error("게시글 등록 실패:", error);
       alert("게시글 등록 중 오류가 발생했습니다.");

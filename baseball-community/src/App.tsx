@@ -25,7 +25,7 @@ function App() {
           <Route path="/posts/create" element={<PostCreate />} />
           <Route path="/posts/:postId/edit" element={<PostEdit />} />
           <Route path="/mypage" element={<Mypage />} />
-          <Route path="/team/:id" element={<TeamPage />} />
+          <Route path="/teams/:id" element={<TeamPage />} />
           <Route path="/search" element={<SearchPage />} />
         </Route>  
       </Routes>

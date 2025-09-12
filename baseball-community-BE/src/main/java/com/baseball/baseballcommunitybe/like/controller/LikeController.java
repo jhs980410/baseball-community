@@ -2,6 +2,7 @@ package com.baseball.baseballcommunitybe.like.controller;
 
 import com.baseball.baseballcommunitybe.like.dto.LikeResponseDto;
 import com.baseball.baseballcommunitybe.like.service.LikeService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,32 +18,32 @@ public class LikeController {
     private final LikeService likeService;
 
     /**
-     * 특정 유저가 좋아요한 글 조회 (마이페이지)
+     * 내가 좋아요한 글 조회 (마이페이지)
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<LikeResponseDto>> getLikesByUser(
-            @PathVariable Long userId,
+    @GetMapping("/me")
+    public ResponseEntity<Page<LikeResponseDto>> getMyLikes(
+            HttpServletRequest request,
             Pageable pageable
     ) {
-        return ResponseEntity.ok(likeService.findByUser(userId, pageable));
+        return ResponseEntity.ok(likeService.findMyLikes(request, pageable));
     }
 
     /**
      * 좋아요 토글
      */
-    @PostMapping("/{postId}/user/{userId}/toggle")
+    @PostMapping("/{postId}/toggle")
     public ResponseEntity<LikeResponseDto> toggleLike(
             @PathVariable Long postId,
-            @PathVariable Long userId
+            HttpServletRequest request
     ) {
-        LikeResponseDto response = likeService.toggleLike(postId, userId);
+        LikeResponseDto response = likeService.toggleLike(postId, request);
         return ResponseEntity.ok(response);
     }
 
     /**
      * 게시글 좋아요 개수 조회
      */
-    @GetMapping("/post/{postId}/count")
+    @GetMapping("/posts/{postId}/count")
     public ResponseEntity<Long> countLikes(@PathVariable Long postId) {
         return ResponseEntity.ok(likeService.countLikes(postId));
     }

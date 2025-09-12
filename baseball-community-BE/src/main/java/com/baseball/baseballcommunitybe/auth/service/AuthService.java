@@ -107,30 +107,39 @@ public class AuthService {
     /**
      * 토큰 재발급
      */
-    public TokenResponseDto refresh(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        String refreshToken = user.getRefreshToken();
+    public TokenResponseDto refresh(String refreshToken) {
+        // 1. Refresh Token 유효성 체크
         if (refreshToken == null || jwtTokenProvider.isExpired(refreshToken)) {
             throw new IllegalArgumentException("Refresh Token이 유효하지 않습니다.");
         }
 
-        // Refresh Token이 본인 것인지 확인 (보안 강화)
+        // 2. Refresh Token에서 userId 추출
         Long tokenUserId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-        if (!userId.equals(tokenUserId)) {
-            throw new IllegalArgumentException("Refresh Token의 유저 정보가 일치하지 않습니다.");
+
+        // 3. DB에서 유저 조회
+        User user = userRepository.findById(tokenUserId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 4. DB에 저장된 refresh token과 비교 (본인 것인지 확인)
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new IllegalArgumentException("Refresh Token 불일치");
         }
 
-        // 새 Access Token & Refresh Token 발급
+        // 5. 새 Access Token & Refresh Token 발급
         String newAccess = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
         String newRefresh = jwtTokenProvider.createRefreshToken(user.getId());
 
-        // Refresh Token 갱신
+        // 6. Refresh Token 갱신 (DB 업데이트)
         user.setRefreshToken(newRefresh);
         userRepository.save(user);
 
-        return new TokenResponseDto(newAccess, newRefresh, user.getId(), user.getEmail(), user.getNickname());
+        return new TokenResponseDto(
+                newAccess,
+                newRefresh,
+                user.getId(),
+                user.getEmail(),
+                user.getNickname()
+        );
     }
 
     //비밀번호 검증

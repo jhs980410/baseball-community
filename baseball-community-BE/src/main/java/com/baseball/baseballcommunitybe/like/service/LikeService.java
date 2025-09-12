@@ -1,14 +1,16 @@
 package com.baseball.baseballcommunitybe.like.service;
 
+import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.like.dto.LikeResponseDto;
 import com.baseball.baseballcommunitybe.like.entity.Like;
 import com.baseball.baseballcommunitybe.like.repository.LikeRepository;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.entity.PostStatus;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
-import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository; //  추가
+import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,17 +26,22 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostStatusRepository postStatusRepository; //  추가
+    private final PostStatusRepository postStatusRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 마이페이지 - 내가 좋아요한 글 (페이징)
      */
-    public Page<LikeResponseDto> findByUser(Long userId, Pageable pageable) {
+    public Page<LikeResponseDto> findMyLikes(HttpServletRequest request, Pageable pageable) {
+        Long userId = extractUserIdFromRequest(request);
+
         return likeRepository.findByUser_Id(userId, pageable)
                 .map(like -> LikeResponseDto.from(
                         like.getPost(),
                         true, // 내가 누른 글이므로 항상 true
-                        likeRepository.countByPost_Id(like.getPost().getId())
+                        postStatusRepository.findById(like.getPost().getId())
+                                .map(PostStatus::getLikeCount)
+                                .orElse(0L)
                 ));
     }
 
@@ -42,7 +49,9 @@ public class LikeService {
      * 좋아요 토글
      */
     @Transactional
-    public LikeResponseDto toggleLike(Long postId, Long userId) {
+    public LikeResponseDto toggleLike(Long postId, HttpServletRequest request) {
+        Long userId = extractUserIdFromRequest(request);
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
         User user = userRepository.findById(userId)
@@ -54,17 +63,16 @@ public class LikeService {
         if (existing.isPresent()) {
             // 좋아요 취소
             likeRepository.delete(existing.get());
-            postStatusRepository.decrementLikeCount(postId); //  post_status 좋아요 -1
+            postStatusRepository.decrementLikeCount(postId);
             liked = false;
         } else {
             // 좋아요 추가
             Like like = new Like(post, user);
             likeRepository.save(like);
-            postStatusRepository.incrementLikeCount(postId); //  post_status 좋아요 +1
+            postStatusRepository.incrementLikeCount(postId);
             liked = true;
         }
 
-        //  likeCount는 post_status에서 가져오기
         long likeCount = postStatusRepository.findById(postId)
                 .map(PostStatus::getLikeCount)
                 .orElse(0L);
@@ -72,12 +80,18 @@ public class LikeService {
         return LikeResponseDto.from(post, liked, likeCount);
     }
 
-    /**
-     * 게시글 좋아요 개수 카운트
-     */
     public long countLikes(Long postId) {
         return postStatusRepository.findById(postId)
                 .map(PostStatus::getLikeCount)
                 .orElse(0L);
+    }
+
+    // ---------------- 내부 헬퍼 ----------------
+    private Long extractUserIdFromRequest(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token == null) {
+            throw new IllegalArgumentException("인증 토큰이 없습니다.");
+        }
+        return jwtTokenProvider.getUserIdFromToken(token);
     }
 }

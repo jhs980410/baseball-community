@@ -34,7 +34,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
 
-    // 전체 게시글 최신순 조회 (status JOIN)
+    // 전체 게시글 최신순 조회
     public Page<PostResponseDto> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return postRepository.findAllWithStatus(pageable);
@@ -52,28 +52,27 @@ public class PostService {
         return postRepository.findByUserIdWithStatus(userId, pageable);
     }
 
-
-    // 단일 게시글 조회 (댓글 수 + 좋아요 여부 + 조회수 증가 + 상세 DTO)
+    // 단일 게시글 조회 (댓글, 좋아요 여부 포함)
     @Transactional
-    public PostDetailResponseDto getPostDetail(Long postId, Long userId) {
+    public PostDetailResponseDto getPostDetail(Long postId, Long currentUserId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
-        //  조회수 증가
+        // 조회수 증가
         postStatusRepository.incrementViewCount(postId);
 
-        // 댓글 리스트 (간단 DTO)
+        // 댓글 리스트
         List<CommentSimpleDto> comments = commentRepository.findByPostId(postId)
                 .stream()
                 .map(CommentSimpleDto::from)
                 .toList();
 
-        // post_status에서 집계값 가져오기
+        // 상태 값 (댓글 수, 좋아요 수, 조회수)
         PostStatus status = postStatusRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("PostStatus 없음: " + postId));
 
         // 좋아요 여부
-        boolean liked = (userId != null) && likeRepository.existsByPost_IdAndUser_Id(postId, userId);
+        boolean liked = (currentUserId != null) && likeRepository.existsByPost_IdAndUser_Id(postId, currentUserId);
 
         return PostDetailResponseDto.from(
                 post,
@@ -85,11 +84,10 @@ public class PostService {
         );
     }
 
-
     // 게시글 작성
     @Transactional
-    public PostResponseDto insertPost(PostRequestDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+    public PostResponseDto createPost(PostRequestDto dto, Long currentUserId) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Post post = Post.builder()
@@ -103,29 +101,33 @@ public class PostService {
 
         postRepository.save(post);
 
-        //  post_status 초기화
+        // 상태 초기화
         PostStatus status = new PostStatus(post.getId(), 0L, 0L, 0L, LocalDateTime.now());
         postStatusRepository.save(status);
 
         return PostResponseDto.from(post, 0L, 0L, 0L, false);
     }
 
+    // 게시글 삭제
     @Transactional
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId, Long currentUserId) throws AccessDeniedException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
+        if (!post.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("본인 글만 삭제할 수 있습니다.");
+        }
+
         postRepository.delete(post);
-        //  post_status는 FK cascade로 자동 삭제됨
     }
 
     // 게시글 수정
     @Transactional
-    public PostResponseDto updatePost(Long postId, PostRequestDto requestDto) throws AccessDeniedException {
+    public PostResponseDto updatePost(Long postId, PostRequestDto requestDto, Long currentUserId) throws AccessDeniedException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
-        if (!post.getUser().getId().equals(requestDto.getUserId())) {
+        if (!post.getUser().getId().equals(currentUserId)) {
             throw new AccessDeniedException("본인 글만 수정할 수 있습니다.");
         }
 
@@ -140,4 +142,7 @@ public class PostService {
     public Page<PostResponseDto> searchPosts(String type, String keyword, int page, int size) {
         return postRepository.searchPosts(type, keyword, PageRequest.of(page, size));
     }
+
+
+
 }

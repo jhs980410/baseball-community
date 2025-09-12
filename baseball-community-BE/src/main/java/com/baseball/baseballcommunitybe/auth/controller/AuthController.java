@@ -33,24 +33,6 @@ public class AuthController {
     }
 
     /**
-     * 이메일 중복 확인
-     */
-    @GetMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
-        boolean available = !userService.existsByEmail(email);
-        return ResponseEntity.ok(available);
-    }
-
-    /**
-     * 닉네임 중복 확인
-     */
-    @GetMapping("/check-nickname")
-    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
-        boolean available = !userService.existsByNickname(nickname);
-        return ResponseEntity.ok(available);
-    }
-
-    /**
      * 로그인
      */
     @PostMapping("/login")
@@ -63,7 +45,7 @@ public class AuthController {
         // Access Token → HttpOnly 쿠키 저장
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", tokens.getAccessToken())
                 .httpOnly(true)
-                .secure(false) // 배포 시 true (HTTPS)
+                .secure(false) // 운영 시 true (HTTPS)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(60 * 15) // 15분
@@ -75,35 +57,42 @@ public class AuthController {
     }
 
     /**
-     * 로그아웃
+     * 로그아웃 (Access Token 무효화)
      */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
-        authService.logout(accessToken); // 내부에서 Redis blacklist 처리
-        return ResponseEntity.ok().build();
+        authService.logout(accessToken);
+        return ResponseEntity.noContent().build();
     }
-
     /**
-     * 토큰 재발급
+     * 토큰 재발급 (Refresh Token 기반)
      */
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponseDto> refresh(@RequestParam Long userId) {
-        TokenResponseDto tokens = authService.refresh(userId);
+    public ResponseEntity<TokenResponseDto> refresh(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        String refreshToken = bearerToken.replace("Bearer ", "");
+        TokenResponseDto tokens = authService.refresh(refreshToken);
         return ResponseEntity.ok(tokens);
     }
-
     /**
      * 비밀번호 확인
      */
     @PostMapping("/verify-password")
     public ResponseEntity<Boolean> verifyPassword(
-            HttpServletRequest request,
-            @RequestBody PasswordRequest req
+            @RequestBody PasswordRequest req,
+            HttpServletRequest request
     ) {
-        String token = jwtTokenProvider.resolveToken(request);
+        String token = jwtTokenProvider.resolveToken(request); // 쿠키에서 꺼내기
         Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        System.out.println("유저id:" + userId);
+        System.out.println("입력비번:" + req.getPassword());
+        System.out.println("token:" + token);
         boolean result = authService.verifyPassword(userId, req.getPassword());
+
         return ResponseEntity.ok(result);
     }
+
 }

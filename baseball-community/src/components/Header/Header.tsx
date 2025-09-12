@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom"; // 검색 후 이동 위해
+import { Link, useNavigate } from "react-router-dom";
 import LoginModal from "../../pages/Login/LoginModal";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -11,17 +11,19 @@ export default function Header() {
   const loginRef = useRef<HTMLDivElement>(null);
   const { userInfo, setUserInfo } = useContext(AuthContext);
 
-  // 🔎 검색 상태
+  // 검색 상태
   const [keyword, setKeyword] = useState("");
   const [searchType, setSearchType] = useState("all");
   const navigate = useNavigate();
 
   useOutsideClick(loginRef, () => setShowLogin(false));
 
+  // 로그아웃
   const handleLogout = async () => {
     try {
       await axios.post("/api/auth/logout", {}, { withCredentials: true });
       setUserInfo(null);
+      navigate("/"); // 로그아웃 후 메인으로
     } catch (error) {
       console.error("로그아웃 실패:", error);
     }
@@ -31,7 +33,7 @@ export default function Header() {
   const handleSearch = () => {
     if (!keyword.trim()) return;
     navigate(`/search?type=${searchType}&keyword=${encodeURIComponent(keyword)}`);
-    // 검색 페이지로 이동 → /search 라우트에서 API 호출
+    // Posts 컴포넌트에서 /api/posts?type=...&keyword=... 호출
   };
 
   return (
@@ -73,11 +75,18 @@ export default function Header() {
             <div className="auth-controls">
               <span className="nickname">{userInfo.nickname} 님</span>
               <Link to="/mypage" className="btn">마이페이지</Link>
-              <button className="btn logout" onClick={handleLogout}>로그아웃</button>
+              <button className="btn logout" onClick={handleLogout}>
+                로그아웃
+              </button>
             </div>
           ) : (
             <div className="auth-controls">
-              <button className="btn login" onClick={() => setShowLogin(!showLogin)}>로그인</button>
+              <button
+                className="btn login"
+                onClick={() => setShowLogin(!showLogin)}
+              >
+                로그인
+              </button>
               {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
             </div>
           )}

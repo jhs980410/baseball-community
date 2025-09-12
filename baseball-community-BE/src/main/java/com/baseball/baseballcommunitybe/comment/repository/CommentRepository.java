@@ -17,12 +17,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c JOIN FETCH c.user WHERE c.post.id = :postId ORDER BY c.createdAt ASC")
     List<Comment> findByPostIdWithUser(@Param("postId") Long postId);
 
-
-    @Query("SELECT c FROM Comment c WHERE c.user.id = :userId ORDER BY c.createdAt ASC")
+    // 유저 댓글 페이징 (최신순)
+    @Query("SELECT c FROM Comment c WHERE c.user.id = :userId ORDER BY c.createdAt DESC")
     Page<Comment> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);
-    // Pageable 지원 O
+
+    // 중복 방지: 기본 findByUserId(Pageable)도 가능
     Page<Comment> findByUserId(Long userId, Pageable pageable);
 
-
-    Long countByPostId(Long postId);  // 게시글별 댓글 개수 카운트
+    // 게시글별 댓글 개수
+    Long countByPostId(Long postId);
 }

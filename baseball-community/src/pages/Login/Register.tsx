@@ -18,6 +18,7 @@ export default function Register() {
   // 이메일 중복확인
 const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
+// 이메일 중복 확인
 const handleCheckEmail = async () => {
   if (!emailRegex.test(email)) {
     setEmailMessage("❌ 올바른 이메일 형식이 아닙니다.");
@@ -25,7 +26,7 @@ const handleCheckEmail = async () => {
   }
 
   try {
-    const res = await axios.get("/api/auth/check-email", { params: { email } });
+    const res = await axios.get("/api/users/check-email", { params: { email } });
     if (res.data) setEmailMessage("✅ 사용 가능한 이메일입니다.");
     else setEmailMessage("❌ 이미 사용 중인 이메일입니다.");
   } catch (err) {
@@ -33,16 +34,16 @@ const handleCheckEmail = async () => {
   }
 };
 
-  // 닉네임 중복확인
- const handleCheckNickname = async () => {
-    try {
-      const res = await axios.get("/api/auth/check-nickname", { params: { nickname } });
-      if (res.data) setNicknameMessage("✅ 사용 가능한 닉네임입니다.");
-      else setNicknameMessage("❌ 이미 사용 중인 닉네임입니다.");
-    } catch (err) {
-      setNicknameMessage("⚠️ 서버 오류가 발생했습니다.");
-    }
-  };
+// 닉네임 중복 확인
+const handleCheckNickname = async () => {
+  try {
+    const res = await axios.get("/api/users/check-nickname", { params: { nickname } });
+    if (res.data) setNicknameMessage("✅ 사용 가능한 닉네임입니다.");
+    else setNicknameMessage("❌ 이미 사용 중인 닉네임입니다.");
+  } catch (err) {
+    setNicknameMessage("⚠️ 서버 오류가 발생했습니다.");
+  }
+};
     // 정규식: 대문자, 소문자, 숫자, 특수문자 최소 1개씩, 8~20자
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/;
