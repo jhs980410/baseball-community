@@ -3,40 +3,59 @@
 ============================== */
 .posts {
   width: 100%;
-  max-width: 1000px; /* 게시판 넓이 */
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
-.posts h2 {
+/* 제목은 단독 줄 */
+.posts-title {
   font-size: 1.6rem;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 2px solid #333;
 }
 
 /* ==============================
-   상단 헤더 (제목 + 버튼)
+   상단 헤더 (탭 + 글쓰기)
 ============================== */
 .posts-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.posts-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.posts-tabs button {
+  padding: 6px 14px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background: #f8f9fa;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.posts-tabs button.active {
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
 }
 
 .btn-create {
-  padding: 8px 16px;
+  padding: 8px 16px;  /* 살짝 더 큼 */
+  font-size: 15px;
   background: #007bff;
   color: white;
-  border: none;
   border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
   font-weight: bold;
-  transition: background 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-create:hover {
@@ -48,7 +67,6 @@
 ============================== */
 .post-list {
   width: 100%;
-  border-collapse: collapse;
   border: 1px solid #ddd;
   border-radius: 6px;
   overflow: hidden;
@@ -58,7 +76,6 @@
 .post-list-header {
   display: grid;
   grid-template-columns: 60px 1fr 150px 80px 80px 80px;
-  /* 번호 | 제목 | 작성일 | 댓글 | 추천 | 조회 */
   font-weight: bold;
   border-bottom: 2px solid #333;
   padding: 12px 8px;
@@ -127,13 +144,12 @@
   .post-list-header,
   .post-row {
     grid-template-columns: 1fr 100px 60px;
-    /* 제목 | 작성일 | 조회 */
   }
 
   .post-index,
   .post-comments,
   .post-likes {
-    display: none; /* 모바일에서는 숨김 */
+    display: none;
   }
 
   .post-title {

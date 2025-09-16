@@ -31,6 +31,21 @@ public class PostStatus {
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
+    @Column(name = "score", nullable = false)
+    private Long score;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "post_id")
+    private Post post;
+    public PostStatus(Long postId, Long commentCount, Long likeCount, Long viewCount, Long score, LocalDateTime lastUpdated) {
+        this.postId = postId;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
+        this.viewCount = viewCount;
+        this.score = score;
+        this.lastUpdated = lastUpdated;
+    }
+
 
     // 카운트 업데이트용 헬퍼 메서드
     public void incrementCommentCount() { this.commentCount++; }

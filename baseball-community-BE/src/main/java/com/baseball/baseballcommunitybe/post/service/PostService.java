@@ -34,6 +34,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
 
+
     // 전체 게시글 최신순 조회
     public Page<PostResponseDto> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -102,7 +103,13 @@ public class PostService {
         postRepository.save(post);
 
         // 상태 초기화
-        PostStatus status = new PostStatus(post.getId(), 0L, 0L, 0L, LocalDateTime.now());
+        PostStatus status = PostStatus.builder()
+                .postId(post.getId())
+                .commentCount(0L)
+                .likeCount(0L)
+                .viewCount(0L)
+                .lastUpdated(LocalDateTime.now())
+                .build();
         postStatusRepository.save(status);
 
         return PostResponseDto.from(post, 0L, 0L, 0L, false);

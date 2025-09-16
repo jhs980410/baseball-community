@@ -113,5 +113,23 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             Pageable pageable
     );
 
+    @Query("SELECT new com.baseball.baseballcommunitybe.post.dto.PostResponseDto(" +
+            "p.id, p.title, p.content, u.nickname, p.createdAt, p.updatedAt, " +
+            "s.commentCount, s.likeCount, s.viewCount) " +
+            "FROM Post p " +
+            "JOIN p.user u " +
+            "JOIN PostStatus s ON p.id = s.postId " +
+            "WHERE p.teamId = :teamId " +
+            "ORDER BY s.score DESC")
+    Page<PostResponseDto> findHotPostsByTeam(@Param("teamId") Integer teamId, Pageable pageable);
+
+    @Query("SELECT new com.baseball.baseballcommunitybe.post.dto.PostResponseDto(" +
+            "p.id, p.title, p.content, u.nickname, p.createdAt, p.updatedAt, " +
+            "s.commentCount, s.likeCount, s.viewCount) " +
+            "FROM Post p " +
+            "JOIN p.user u " +
+            "JOIN PostStatus s ON p.id = s.postId " +
+            "ORDER BY s.score DESC")
+    Page<PostResponseDto> findHotPosts(Pageable pageable);
 
 }

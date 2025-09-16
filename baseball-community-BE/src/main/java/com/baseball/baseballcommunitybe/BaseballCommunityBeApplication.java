@@ -6,6 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling; // ⬅ 추가
 
 @SpringBootApplication(scanBasePackages = "com.baseball.baseballcommunitybe")
 @EnableJpaRepositories(
@@ -15,6 +16,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories(
         basePackages = "com.baseball.baseballcommunitybe.redis"
 )
+@EnableScheduling  // 이거 추가해야 @Scheduled가 실행됨
 public class BaseballCommunityBeApplication {
 
     public static void main(String[] args) {

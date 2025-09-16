@@ -5,14 +5,16 @@ import com.baseball.baseballcommunitybe.post.dto.PostDetailResponseDto;
 import com.baseball.baseballcommunitybe.post.dto.PostRequestDto;
 import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
 import com.baseball.baseballcommunitybe.post.service.PostService;
+import com.baseball.baseballcommunitybe.redis.service.HotPostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -21,7 +23,7 @@ public class PostController {
 
     private final PostService postService;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final HotPostService hotPostService;
     /**
      * 전체 게시글 조회 (검색 포함)
      */
@@ -124,6 +126,35 @@ public class PostController {
         Long currentUserId = extractUserId(request);
         postService.deletePost(postId, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 전체 인기글 조회
+     */
+    @GetMapping("/hot")
+    public ResponseEntity<Page<PostResponseDto>> getHotPosts(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long currentUserId = extractUserId(request);
+        Page<PostResponseDto> hotPosts = hotPostService.getHotPosts(currentUserId, null, page, size);
+        return ResponseEntity.ok(hotPosts);
+    }
+
+    /**
+     * 팀별 인기글 조회
+     */
+    @GetMapping("/teams/{teamId}/hot")
+    public ResponseEntity<Page<PostResponseDto>> getTeamHotPosts(
+            @PathVariable Long teamId,
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long currentUserId = extractUserId(request);
+        Page<PostResponseDto> hotPosts = hotPostService.getHotPosts(currentUserId, teamId, page, size);
+        return ResponseEntity.ok(hotPosts);
     }
 
     // ------------------ 내부 헬퍼 ------------------
