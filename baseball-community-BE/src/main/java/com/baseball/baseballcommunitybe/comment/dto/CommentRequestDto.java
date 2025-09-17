@@ -8,6 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class CommentRequestDto {
     private Long postId;
-    private Long userId;
     private String content;
+    private Long parentId;  // 대댓글일 경우 부모 댓글 id (없으면 null)
 }

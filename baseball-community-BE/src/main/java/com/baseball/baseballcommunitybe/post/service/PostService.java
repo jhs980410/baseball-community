@@ -102,18 +102,21 @@ public class PostService {
 
         postRepository.save(post);
 
-        // 상태 초기화
+        //  PostStatus 생성 시 post만 세팅 → postId 자동 세팅
         PostStatus status = PostStatus.builder()
-                .postId(post.getId())
+                .post(post)
                 .commentCount(0L)
                 .likeCount(0L)
                 .viewCount(0L)
+                .score(0L)
                 .lastUpdated(LocalDateTime.now())
                 .build();
+
         postStatusRepository.save(status);
 
         return PostResponseDto.from(post, 0L, 0L, 0L, false);
     }
+
 
     // 게시글 삭제
     @Transactional

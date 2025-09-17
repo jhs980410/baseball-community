@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -32,18 +31,24 @@ public class CommentService {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * 마이페이지: 특정 유저의 댓글 목록 (페이징)
+     * 마이페이지: 특정 유저의 댓글 목록 (페이징, flat)
      */
     public Page<CommentResponseDto> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable) {
         return commentRepository.findByUserId(userId, pageable)
                 .map(CommentResponseDto::forUser);
     }
+
     /**
-     * 게시글 상세: 해당 게시글의 댓글 목록
+     * 게시글 상세: 댓글 + 대댓글 트리 조회
      */
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> findByPost(Long postId) {
-        return commentRepository.findByPostId(postId).stream()
-                .map(CommentResponseDto::forPost)
+        List<Comment> comments = commentRepository.findByPostIdWithUser(postId);
+
+        // 부모 댓글만 걸러서 트리 구조 반환
+        return comments.stream()
+                .filter(c -> c.getParent() == null)
+                .map(CommentResponseDto::forPost) // children 포함 재귀 변환
                 .collect(Collectors.toList());
     }
 
@@ -59,28 +64,27 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
-        // 게시글 상태 체크
         if (post.getIsHidden()) {
             throw new IllegalStateException("숨김 처리된 게시글에는 댓글을 작성할 수 없습니다.");
         }
-
-        // 유저 상태 체크
         if (user.getStatus() != User.Status.ACTIVE) {
             throw new IllegalStateException("해당 유저는 댓글 작성 권한이 없습니다.");
         }
 
-        Comment comment = new Comment(post, user, dto.getContent());
+        Comment parent = null;
+        if (dto.getParentId() != null) {
+            parent = commentRepository.findById(dto.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모 댓글을 찾을 수 없습니다."));
+        }
+
+        Comment comment = new Comment(post, user, dto.getContent(), parent);
         commentRepository.save(comment);
 
-        // post_status 댓글 수 +1
         postStatusRepository.incrementCommentCount(dto.getPostId());
 
         return CommentResponseDto.forPost(comment);
     }
 
-    /**
-     * 댓글 삭제
-     */
     /**
      * 댓글 수정
      */
@@ -89,12 +93,10 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        // 권한 체크
         if (!comment.getUser().getId().equals(currentUserId)) {
             throw new SecurityException("댓글 수정 권한이 없습니다.");
         }
 
-        // 엔티티 수정 → JPA dirty checking 자동 반영
         comment.updateContent(newContent);
 
         return CommentResponseDto.forPost(comment);
@@ -108,27 +110,14 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        // 권한 체크
         if (!comment.getUser().getId().equals(currentUserId) && !isAdmin) {
             throw new SecurityException("댓글 삭제 권한이 없습니다.");
         }
 
         Long postId = comment.getPost().getId();
-
-        // 댓글 삭제
         commentRepository.deleteById(commentId);
 
-        // post_status 댓글 수 -1
         postStatusRepository.decrementCommentCount(postId);
-    }
-
-    /**
-     * 관리자/대시보드: 게시글 내 간단 댓글 리스트
-     */
-    public List<CommentSimpleDto> findSimpleByPost(Long postId) {
-        return commentRepository.findByPostId(postId).stream()
-                .map(CommentSimpleDto::from)
-                .collect(Collectors.toList());
     }
 
     // ----------------- 내부 헬퍼 -----------------

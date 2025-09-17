@@ -12,17 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
-    private final JwtTokenProvider jwtTokenProvider; // ✅ JWT 유저 ID 추출용
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * 특정 게시글 댓글 조회
+     * 특정 게시글 댓글 + 대댓글 조회
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Long postId) {
@@ -32,29 +31,25 @@ public class CommentController {
     /**
      * 마이페이지: 내 댓글 조회 (JWT 기반)
      */
-    /**
-     * 마이페이지: 내 댓글 조회 (JWT 기반)
-     * /api/comments/me
-     */
     @GetMapping("/me")
     public ResponseEntity<Page<CommentResponseDto>> getMyComments(
             HttpServletRequest request,
             Pageable pageable
     ) {
-        Long currentUserId = extractUserId(request); // JWT에서 userId 추출
+        Long currentUserId = extractUserId(request);
         return ResponseEntity.ok(
                 commentService.findByUserIdOrderByCreatedAtDesc(currentUserId, pageable)
         );
     }
+
     /**
-     * 댓글 작성 (JWT 기반)
+     * 댓글/대댓글 작성 (parentId 유무로 구분)
      */
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(
             @RequestBody CommentRequestDto dto,
             HttpServletRequest request
     ) {
-        Long currentUserId = extractUserId(request);
         return ResponseEntity.ok(commentService.create(dto, request));
     }
 
@@ -81,7 +76,8 @@ public class CommentController {
             HttpServletRequest request
     ) {
         Long currentUserId = extractUserId(request);
-        commentService.delete(id, currentUserId, false); // TODO: 관리자 여부 체크 후 true 넘기기
+        boolean isAdmin = extractIsAdmin(request); //  관리자 여부 체크
+        commentService.delete(id, currentUserId, isAdmin);
         return ResponseEntity.noContent().build();
     }
 
@@ -89,5 +85,10 @@ public class CommentController {
     private Long extractUserId(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         return (token != null) ? jwtTokenProvider.getUserIdFromToken(token) : null;
+    }
+
+    private boolean extractIsAdmin(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        return token != null && jwtTokenProvider.getRoleFromToken(token).equals("ADMIN");
     }
 }

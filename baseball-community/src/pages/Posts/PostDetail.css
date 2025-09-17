@@ -240,3 +240,33 @@
 .comment-form button:hover {
   background: #0056b3;
 }
+
+
+/* 대댓글 들여쓰기 */
+.comment.reply {
+  margin-left: 20px; /* 부모 댓글보다 오른쪽으로 */
+  background: #fdfdfd;
+  border-left: 3px solid #ddd;
+}
+
+/* 답글 버튼 */
+.comment-reply button {
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+}
+
+.comment-reply button:hover {
+  text-decoration: underline;
+}
+
+/* 대댓글 입력창 (댓글폼) */
+.comment.reply .comment-form {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px dashed #ccc;
+}
