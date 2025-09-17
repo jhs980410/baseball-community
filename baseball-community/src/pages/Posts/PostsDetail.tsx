@@ -5,16 +5,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CommentForm from "./CommentForm";
 
+// Comment 타입 
 interface Comment {
   id: number;
   userId: number | null;
-   userNickname: string;
+  userNickname: string;
   content: string;
-  date: string;
+  createdAt: string;       //  date → createdAt
   parentId: number | null;
   children: Comment[];
+  likeCount: number;       //  추가
+  likedByCurrentUser: boolean; //  추가
 }
-
 interface Post {
   id: number;
   userId: number;
@@ -53,6 +55,28 @@ export default function PostDetail() {
       console.error("게시글 불러오기 실패:", err);
     }
   };
+
+
+  
+const handleDeletePosts = async (postId: number) => {
+  if (!window.confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
+  try {
+    const response = await axios.delete(`/api/posts/${postId}`, {
+      withCredentials: true,
+    });
+    
+    console.log("삭제 성공:", response);
+    
+    // 타임아웃 추가해서 비동기 처리 순서 보장
+    setTimeout(() => {
+      navigate('/');
+    }, 100);
+    
+  } catch (err) {
+    console.error("게시글 삭제 실패:", err);
+    alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+  }
+};
 
   useEffect(() => {
     fetchPost();
@@ -129,10 +153,13 @@ const renderComments = (comments: Comment[], depth = 0) =>
 
       <div className="comment-content">{c.content}</div>
 
-      <div className="comment-reply">
-        <button onClick={() => setReplyParentId(c.id)}>↩ 답글</button>
+   <div className="comment-actions-bar">
+        <button onClick={() => setReplyParentId(c.id)}>💬 답글</button>
+        <button onClick={() => handleLikeComment(c.id, c.likedByCurrentUser ?? false)}>
+          👍 추천 {c.likeCount ?? 0}
+        </button>
+        <button onClick={() => handleReportComment(c.id)}>🚨 신고</button>
       </div>
-
       {replyParentId === c.id && (
         <CommentForm
           postId={post.id}
@@ -149,6 +176,76 @@ const renderComments = (comments: Comment[], depth = 0) =>
     </div>
   ));
 
+// 댓글 좋아요 (부분 동기화)
+const handleLikeComment = async (commentId: number, likedByCurrentUser: boolean) => {
+  try {
+    let res;
+
+    if (likedByCurrentUser) {
+      // 이미 좋아요 누른 상태 → DELETE
+      res = await axios.delete(`/api/likes/comments/${commentId}`, {
+        withCredentials: true,
+      });
+      console.log("좋아요 취소됨:", res.data);
+    } else {
+      // 아직 안 누른 상태 → POST
+      res = await axios.post(
+        `/api/likes/comments/${commentId}`,
+        {},
+        { withCredentials: true }
+      );
+      console.log("좋아요 추가됨:", res.data);
+    }
+
+    // 서버 응답 DTO 구조: { commentId, likeCount, dislikeCount, likedByCurrentUser, dislikedByCurrentUser }
+    const updated = res.data;
+
+    // 상태 갱신 (post.comments에서 해당 comment만 업데이트)
+    setPost((prev) => {
+      if (!prev) return prev;
+
+      const updateComments = (comments: Comment[]): Comment[] =>
+        comments.map((c) => {
+          if (c.id === updated.commentId) {
+            return {
+              ...c,
+              likeCount: updated.likeCount,
+              likedByCurrentUser: updated.likedByCurrentUser,
+            };
+          }
+          return {
+            ...c,
+            children: updateComments(c.children), // 재귀적으로 대댓글도 갱신
+          };
+        });
+
+      return {
+        ...prev,
+        comments: updateComments(prev.comments),
+      };
+    });
+  } catch (err) {
+    console.error("댓글 좋아요 실패:", err);
+  }
+};
+
+
+// 댓글 신고
+const handleReportComment = async (commentId: number) => {
+  const reason = prompt("신고 사유를 선택/입력하세요 (SPAM/ADULT/PERSONAL_INFO/ABUSE)", "SPAM");
+  if (!reason) return;
+
+  try {
+    await axios.post(
+      `/api/reports/comments/${commentId}`,
+      { reason },
+      { withCredentials: true }
+    );
+    alert("신고가 접수되었습니다.");
+  } catch (err) {
+    console.error("댓글 신고 실패:", err);
+  }
+};
   return (
     <main className="main-content post-detail">
       <div className="post-detail-container">
@@ -162,7 +259,7 @@ const renderComments = (comments: Comment[], depth = 0) =>
                 <button onClick={() => navigate(`/posts/${post.id}/edit`)}>
                   ✏️ 수정
                 </button>
-                <button onClick={() => navigate("/")}>🗑 삭제</button>
+                <button onClick={() => handleDeletePosts(post.id)}>🗑 삭제</button>
               </div>
             )}
           </div>

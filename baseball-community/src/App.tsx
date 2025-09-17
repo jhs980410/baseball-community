@@ -27,6 +27,7 @@ function App() {
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/teams/:id" element={<TeamPage />} />
           <Route path="/search" element={<SearchPage />} />
+    
         </Route>  
       </Routes>
     </BrowserRouter>

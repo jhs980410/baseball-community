@@ -113,6 +113,7 @@ public class JwtTokenProvider {
 
     //  토큰 추출 (Authorization 헤더 + 쿠키 둘 다 지원)
     public String resolveToken(HttpServletRequest request) {
+        System.out.println("resolveToken 실행됨!");
         // 1. Authorization 헤더 우선
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
