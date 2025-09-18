@@ -240,28 +240,34 @@ export default function Mypage() {
         )}
 
         {/* 내가 쓴 댓글 */}
-        {activeTab === "comments" && !loading && (
-          <div>
-            <h3 className="mypagetitle">내가 쓴 댓글</h3>
-            <ul>
-              {comments.map((c) => (
-                <li key={c.id} className="comment-item">
-                  <div className="comment-left">
-                    <Link to={`/posts/${c.postId}`} className="comment-link">
-                      <strong>{c.content}</strong>
-                    </Link>
-                  </div>
-                  <div className="comment-right">
-                    <small>
-                      원글: {c.postTitle} ({new Date(c.date).toLocaleDateString()})
-                    </small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <Pagination currentPage={commentPage} totalPages={commentTotalPages} onPageChange={setCommentPage} />
+{/* 내가 쓴 댓글 */}
+{activeTab === "comments" && !loading && (
+  <div>
+    <h3 className="mypagetitle">내가 쓴 댓글</h3>
+    <ul>
+      {comments.map((c) => (
+        <li key={c.id} className="comment-item">
+          <div className="comment-left">
+            <Link to={`/posts/${c.postId}`} className="comment-link">
+              <strong>{c.content}</strong>
+              {c.edited && <span className="edited-tag"> (수정됨)</span>}
+            </Link>
           </div>
-        )}
+          <div className="comment-right">
+            <small>
+              원글: {c.postTitle} ({new Date(c.date).toLocaleDateString()})
+            </small>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <Pagination
+      currentPage={commentPage}
+      totalPages={commentTotalPages}
+      onPageChange={setCommentPage}
+    />
+  </div>
+)}
 
         {/* 좋아요한 글 */}
         {activeTab === "likes" && !loading && (

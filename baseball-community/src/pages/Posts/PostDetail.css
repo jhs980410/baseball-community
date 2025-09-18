@@ -289,3 +289,18 @@
 .comment-actions-bar button:hover {
   color: #007bff;
 }
+
+.back-to-list {
+  margin-top: 20px;
+  text-align: right;
+}
+.back-to-list button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.back-to-list button:hover {
+  background: #e0e0e0;
+}

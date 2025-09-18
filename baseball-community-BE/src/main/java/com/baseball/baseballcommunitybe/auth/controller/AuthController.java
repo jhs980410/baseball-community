@@ -60,9 +60,21 @@ public class AuthController {
      * 로그아웃 (Access Token 무효화)
      */
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<Void> logout(HttpServletResponse response, HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
-        authService.logout(accessToken);
+        authService.logout(accessToken); // 서버 측 블랙리스트/로그 기록 처리
+
+        // 쿠키 만료 처리
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", "")
+                .httpOnly(true)
+                .secure(false) // 운영 환경에서는 true
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0) // 즉시 만료
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
+
         return ResponseEntity.noContent().build();
     }
     /**

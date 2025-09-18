@@ -6,47 +6,54 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
 public class CommentResponseDto {
     private Long id;
     private Long userId;
+    private String userNickname;   // 닉네임 추가
     private String content;
-    private LocalDateTime date;
-    private Long postId;       // 마이페이지 용도
-    private String postTitle;  // 마이페이지 용도
-    private Long parentId;     // 대댓글 구분
-    private List<CommentResponseDto> children; // 게시글 상세용
+    private LocalDateTime createdAt;
+    private Long postId;
+    private String postTitle;
+    private Long parentId;
+    private List<CommentResponseDto> children;
 
-    // 🔹 마이페이지 전용 팩토리 (children 없음)
-    public static CommentResponseDto forUser(Comment comment) {
+    private boolean edited;        // 수정 여부
+    private LocalDateTime editedAt; // 마지막 수정 시각
+
+    // 📌 마이페이지용
+    public static CommentResponseDto forUser(Comment comment, boolean edited, LocalDateTime editedAt) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getUser() != null ? comment.getUser().getId() : null,
+                comment.getUser() != null ? comment.getUser().getNickname() : "탈퇴회원",
                 comment.getContent(),
                 comment.getCreatedAt(),
                 comment.getPost().getId(),
                 comment.getPost().getTitle(),
                 comment.getParent() != null ? comment.getParent().getId() : null,
-                null // 마이페이지는 children 불필요
+                null,
+                edited,
+                editedAt
         );
     }
 
-    // 🔹 게시글 상세 전용 팩토리 (트리 구조, children 재귀 변환)
-    public static CommentResponseDto forPost(Comment comment) {
+    // 📌 게시글 상세용 (트리)
+    public static CommentResponseDto forPost(Comment comment, boolean edited, LocalDateTime editedAt, List<CommentResponseDto> children) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getUser() != null ? comment.getUser().getId() : null,
+                comment.getUser() != null ? comment.getUser().getNickname() : "탈퇴회원",
                 comment.getContent(),
                 comment.getCreatedAt(),
-                null, // 게시글 상세에는 postId 불필요
-                null, // 게시글 상세에는 postTitle 불필요
+                null,
+                null,
                 comment.getParent() != null ? comment.getParent().getId() : null,
-                comment.getChildren().stream()
-                        .map(CommentResponseDto::forPost)
-                        .collect(Collectors.toList())
+                children,
+                edited,
+                editedAt
         );
     }
 }

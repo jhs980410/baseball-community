@@ -7,7 +7,9 @@ import com.baseball.baseballcommunitybe.post.dto.PostDetailResponseDto;
 import com.baseball.baseballcommunitybe.post.dto.PostRequestDto;
 import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
 import com.baseball.baseballcommunitybe.post.entity.Post;
+import com.baseball.baseballcommunitybe.post.entity.PostEditHistory;
 import com.baseball.baseballcommunitybe.post.entity.PostStatus;
+import com.baseball.baseballcommunitybe.post.repository.PostEditHistoryRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository;
 import com.baseball.baseballcommunitybe.user.entity.User;
@@ -33,6 +35,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
+    private final PostEditHistoryRepository postEditHistoryRepository;
 
 
     // 전체 게시글 최신순 조회
@@ -52,8 +55,6 @@ public class PostService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return postRepository.findByUserIdWithStatus(userId, pageable);
     }
-
-    // 단일 게시글 조회 (댓글, 좋아요 여부 포함)
     @Transactional
     public PostDetailResponseDto getPostDetail(Long postId, Long currentUserId) {
         Post post = postRepository.findById(postId)
@@ -68,22 +69,27 @@ public class PostService {
                 .map(CommentSimpleDto::from)
                 .toList();
 
-        // 상태 값 (댓글 수, 좋아요 수, 조회수)
+        // 상태 값
         PostStatus status = postStatusRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("PostStatus 없음: " + postId));
 
         // 좋아요 여부
         boolean liked = (currentUserId != null) && likeRepository.existsByPost_IdAndUser_Id(postId, currentUserId);
 
+        // 수정 여부 (수정 이력 존재 확인)
+        boolean edited = postEditHistoryRepository.existsByPostId(postId);
+        System.out.println("수정여부: " + edited);
         return PostDetailResponseDto.from(
                 post,
                 comments,
                 status.getCommentCount(),
                 status.getLikeCount(),
                 status.getViewCount(),
-                liked
+                liked,
+                edited // 새 필드 전달
         );
     }
+
 
     // 게시글 작성
     @Transactional
@@ -141,9 +147,26 @@ public class PostService {
             throw new AccessDeniedException("본인 글만 수정할 수 있습니다.");
         }
 
+        // 기존 값 보관 (이력 저장용)
+        String oldTitle = post.getTitle();
+        String oldContent = post.getContent();
+
+        // 실제 게시글 수정
         post.setTitle(requestDto.getTitle());
         post.setContent(requestDto.getContent());
         post.setTeamId(requestDto.getTeamId());
+
+        // 수정 이력 엔티티 생성
+        PostEditHistory history = PostEditHistory.builder()
+                .post(post)
+                .editor(post.getUser())
+                .oldTitle(oldTitle)
+                .oldContent(oldContent)
+                .newTitle(requestDto.getTitle())
+                .newContent(requestDto.getContent())
+                .build();
+
+        postEditHistoryRepository.save(history);
 
         return new PostResponseDto(post);
     }

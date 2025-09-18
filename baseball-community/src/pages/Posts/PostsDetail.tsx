@@ -16,6 +16,8 @@ interface Comment {
   children: Comment[];
   likeCount: number;       //  추가
   likedByCurrentUser: boolean; //  추가
+  edited: boolean;             //  수정 여부
+  editedAt?: string;
 }
 interface Post {
   id: number;
@@ -24,6 +26,8 @@ interface Post {
   content: string;
   nickname: string;
   createdAt: string;
+  edited: boolean;             //  수정 여부
+  editedAt?: string;
   commentCount: number;
   comments: Comment[];
   likeCount: number;
@@ -100,7 +104,7 @@ const handleDeletePosts = async (postId: number) => {
       console.error("좋아요 처리 실패", err);
     }
   };
-
+  
   // 댓글 수정
   const handleEditComment = async (commentId: number, oldContent: string) => {
     const newContent = prompt("댓글 수정", oldContent);
@@ -142,24 +146,38 @@ const renderComments = (comments: Comment[], depth = 0) =>
         <div className="comment-author">
           {c.userNickname}
           <span className="comment-date">{c.createdAt.replace("T", " ")}</span>
+          {c.edited && <span className="date">(수정됨)</span>}
         </div>
         {userInfo?.nickname === c.userNickname && (
           <div className="comment-actions">
-            <button onClick={() => handleEditComment(c.id, c.content)} className="btn-edit">✏️ 수정</button>
-            <button onClick={() => handleDeleteComment(c.id)} className="btn-delete">🗑 삭제</button>
+            <button
+              onClick={() => handleEditComment(c.id, c.content)}
+              className="btn-edit"
+            >
+              ✏️ 수정
+            </button>
+            <button
+              onClick={() => handleDeleteComment(c.id)}
+              className="btn-delete"
+            >
+              🗑 삭제
+            </button>
           </div>
         )}
       </div>
 
       <div className="comment-content">{c.content}</div>
 
-   <div className="comment-actions-bar">
+      <div className="comment-actions-bar">
         <button onClick={() => setReplyParentId(c.id)}>💬 답글</button>
-        <button onClick={() => handleLikeComment(c.id, c.likedByCurrentUser ?? false)}>
+        <button
+          onClick={() => handleLikeComment(c.id, c.likedByCurrentUser ?? false)}
+        >
           👍 추천 {c.likeCount ?? 0}
         </button>
         <button onClick={() => handleReportComment(c.id)}>🚨 신고</button>
       </div>
+
       {replyParentId === c.id && (
         <CommentForm
           postId={post.id}
@@ -271,12 +289,15 @@ const handleReportComment = async (commentId: number) => {
           <div className="left">
             <span className="author">{post.nickname}</span>
             <span className="date">{post.createdAt.replace("T", " ")}</span>
+            {post.edited && (
+              <span className="date">(수정됨)</span>
+            )}
             {userInfo?.id === post.userId && (
               <div className="post-actions">
-                <button onClick={() => navigate(`/posts/${post.id}/edit`)}>
+                <button className="" onClick={() => navigate(`/posts/${post.id}/edit`)}>
                   ✏️ 수정
                 </button>
-                <button onClick={() => handleDeletePosts(post.id)}>🗑 삭제</button>
+                <button className="" onClick={() => handleDeletePosts(post.id)}>🗑 삭제</button>
               </div>
             )}
           </div>
@@ -320,7 +341,13 @@ const handleReportComment = async (commentId: number) => {
               onCommentAdded={fetchPost}
             />
         </div>
+         {/* 목록으로 가기 버튼 */}
+        <div className="back-to-list">
+          <button onClick={() => navigate(-1)}>목록으로 가기</button>
+        </div>
       </div>
+     
     </main>
+    
   );
 }

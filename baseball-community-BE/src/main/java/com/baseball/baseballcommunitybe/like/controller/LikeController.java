@@ -33,11 +33,12 @@ public class LikeController {
     /**
      * 게시글 좋아요 토글
      */
-    @PostMapping("/posts/{postId}/toggle")
+    @PostMapping("/{postId}/toggle")
     public ResponseEntity<LikeResponseDto> togglePostLike(
             @PathVariable Long postId,
             HttpServletRequest request
     ) {
+        System.out.println("접근함?");
         LikeResponseDto response = likeService.toggleLike(postId, request);
         return ResponseEntity.ok(response);
     }

@@ -4,6 +4,7 @@ import com.baseball.baseballcommunitybe.auth.jwt.JwtAuthenticationFilter;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,10 +29,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/posts/**").permitAll()
-                        .requestMatchers("/api/comments/**").permitAll()
-                        .requestMatchers("/api/likes/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()   // 조회만 허용
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll() // 조회만 허용
+                        .requestMatchers("/api/posts/**").authenticated()   // 작성/수정/삭제는 인증 필요
+                        .requestMatchers("/api/comments/**").authenticated() // 작성/수정/삭제는 인증 필요
+                        .requestMatchers("/api/likes/**").authenticated()
                         .requestMatchers("/api/reports/**").authenticated()
                         .anyRequest().authenticated()
                 )
