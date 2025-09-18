@@ -229,6 +229,23 @@ const handleLikeComment = async (commentId: number, likedByCurrentUser: boolean)
   }
 };
 
+// 게시글 신고
+const handleReportPosts = async (postId: number) => {
+  const reason = prompt("신고 사유를 선택/입력하세요 (SPAM/ADULT/PERSONAL_INFO/ABUSE)", "SPAM");
+  if (!reason) return;
+
+  try {
+    await axios.post(
+      `/api/reports/posts/${postId}`,
+      { reason },
+      { withCredentials: true }
+    );
+    alert("신고가 접수되었습니다.");
+  } catch (err) {
+    console.error("댓글 신고 실패:", err);
+  }
+};
+
 
 // 댓글 신고
 const handleReportComment = async (commentId: number) => {
@@ -282,7 +299,7 @@ const handleReportComment = async (commentId: number) => {
           >
             {liked ? "좋아요취소" : "👍좋아요 "}
           </button>
-          <button className="btn-report">🚨 신고</button>
+          <button className="btn-report" onClick={() => handleReportPosts(post.id)} >🚨 신고</button>
         </div>
 
      
