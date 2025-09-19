@@ -1,0 +1,48 @@
+/* 전체 배경 */
+body {
+  background-color: #f5f7fa; /* 밝은 회색 톤 */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 사이드바 */
+.ant-layout-sider {
+  background: #001529 !important; /* AntD 기본 다크 색상보다 짙은 네이비 */
+}
+
+/* 사이드바 메뉴 */
+.ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background-color: #1677ff !important; /* 선택된 메뉴 파란색 */
+}
+.ant-menu-item:hover {
+  background-color: #1890ff33 !important; /* hover 시 연한 파랑 */
+}
+
+/* 헤더 */
+.ant-layout-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: bold;
+  color: #1677ff;
+}
+
+/* 메인 컨텐츠 */
+.ant-layout-content {
+  margin: 16px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 대시보드 카드 */
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+.dashboard-card h3 {
+  margin-bottom: 8px;
+  color: #1677ff;
+}

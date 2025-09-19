@@ -1,0 +1,48 @@
+// 일일 통계 (daily_stats)
+export const mockDailyStats = [
+  {
+    stat_date: "2025-09-10",
+    new_users: 5,
+    active_users: 40,
+    new_posts: 12,
+    new_comments: 30,
+    post_views: 150,
+    reports: 3,
+  },
+  {
+    stat_date: "2025-09-11",
+    new_users: 8,
+    active_users: 55,
+    new_posts: 15,
+    new_comments: 42,
+    post_views: 210,
+    reports: 5,
+  },
+  {
+    stat_date: "2025-09-12",
+    new_users: 7,
+    active_users: 60,
+    new_posts: 18,
+    new_comments: 38,
+    post_views: 230,
+    reports: 2,
+  },
+  {
+    stat_date: "2025-09-13",
+    new_users: 6,
+    active_users: 48,
+    new_posts: 14,
+    new_comments: 33,
+    post_views: 180,
+    reports: 4,
+  },
+  {
+    stat_date: "2025-09-14",
+    new_users: 10,
+    active_users: 65,
+    new_posts: 20,
+    new_comments: 50,
+    post_views: 300,
+    reports: 6,
+  },
+];
