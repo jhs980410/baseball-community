@@ -38,7 +38,7 @@ public class LikeService {
         return likeRepository.findByUser_Id(userId, pageable)
                 .map(like -> LikeResponseDto.from(
                         like.getPost(),
-                        true, // 내가 누른 글이므로 항상 true
+                        true,
                         postStatusRepository.findById(like.getPost().getId())
                                 .map(PostStatus::getLikeCount)
                                 .orElse(0L)
@@ -46,7 +46,7 @@ public class LikeService {
     }
 
     /**
-     * 좋아요 토글
+     * 게시글 좋아요 토글
      */
     @Transactional
     public LikeResponseDto toggleLike(Long postId, HttpServletRequest request) {
@@ -61,12 +61,10 @@ public class LikeService {
 
         boolean liked;
         if (existing.isPresent()) {
-            // 좋아요 취소
             likeRepository.delete(existing.get());
             postStatusRepository.decrementLikeCount(postId);
             liked = false;
         } else {
-            // 좋아요 추가
             Like like = new Like(post, user);
             likeRepository.save(like);
             postStatusRepository.incrementLikeCount(postId);
@@ -86,7 +84,7 @@ public class LikeService {
                 .orElse(0L);
     }
 
-    // ---------------- 내부 헬퍼 ----------------
+    // 내부 헬퍼
     private Long extractUserIdFromRequest(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null) {

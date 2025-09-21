@@ -1,4 +1,4 @@
 package com.baseball.baseballcommunitybe.admin.controller;
 
-public class AdminController {
+public class AdminCommentController {
 }

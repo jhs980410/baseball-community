@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/comments/**").authenticated() // 작성/수정/삭제는 인증 필요
                         .requestMatchers("/api/likes/**").authenticated()
                         .requestMatchers("/api/reports/**").authenticated()
+                        .requestMatchers("/api/admin/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),

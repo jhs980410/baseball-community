@@ -5,8 +5,10 @@ import com.baseball.baseballcommunitybe.comment.dto.CommentRequestDto;
 import com.baseball.baseballcommunitybe.comment.dto.CommentResponseDto;
 import com.baseball.baseballcommunitybe.comment.entity.Comment;
 import com.baseball.baseballcommunitybe.comment.entity.CommentEditHistory;
+import com.baseball.baseballcommunitybe.comment.entity.CommentStatus;
 import com.baseball.baseballcommunitybe.comment.repository.CommentEditHistoryRepository;
 import com.baseball.baseballcommunitybe.comment.repository.CommentRepository;
+import com.baseball.baseballcommunitybe.comment.repository.CommentStatusRepository;
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository;
@@ -31,6 +33,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostStatusRepository postStatusRepository;
+    private final CommentStatusRepository commentStatusRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final CommentEditHistoryRepository commentEditHistoryRepository;
 
@@ -111,10 +114,21 @@ public class CommentService {
         Comment comment = new Comment(post, user, dto.getContent(), parent);
         commentRepository.save(comment);
 
+        //  PostStatus 댓글 수 증가
         postStatusRepository.incrementCommentCount(dto.getPostId());
+
+        //  CommentStatus 생성
+        CommentStatus status = CommentStatus.builder()
+                .comment(comment)
+                .likeCount(0L)
+                .dislikeCount(0L)
+                .lastUpdated(LocalDateTime.now())
+                .build();
+        commentStatusRepository.save(status);
 
         return mapToDtoWithEditInfoPost(comment);
     }
+
 
     /**
      * 댓글 수정
@@ -146,6 +160,7 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
+    // 댓글 삭제
     @Transactional
     public void delete(Long commentId, Long currentUserId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
@@ -156,11 +171,15 @@ public class CommentService {
         }
 
         Long postId = comment.getPost().getId();
+
+        //  CommentStatus 삭제
+        commentStatusRepository.deleteById(commentId);
+
         commentRepository.deleteById(commentId);
 
+        //  PostStatus 댓글 수 감소
         postStatusRepository.decrementCommentCount(postId);
     }
-
     // ----------------- 내부 헬퍼 -----------------
     private Long extractUserIdFromRequest(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
