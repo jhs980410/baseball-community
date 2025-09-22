@@ -37,12 +37,12 @@ useEffect(() => {
 
   // 신고 현황 집계
   const reportData = [
-    { name: "스팸", value: data.reports.filter((r) => r.reason === "spam").length },
-    { name: "욕설/비방", value: data.reports.filter((r) => r.reason === "abuse").length },
-    { name: "성인", value: data.reports.filter((r) => r.reason === "adult").length },
-    { name: "개인정보", value: data.reports.filter((r) => r.reason === "personal_info").length },
+    { name: "스팸", value: data.reports.filter((r) => r.reason === "SPAM").length },
+    { name: "욕설/비방", value: data.reports.filter((r) => r.reason === "ABUSE").length },
+    { name: "성인", value: data.reports.filter((r) => r.reason === "ADULT").length },
+    { name: "개인정보", value: data.reports.filter((r) => r.reason === "PERSONAL_INFO").length },
   ];
-
+ 
   const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#8BC34A"];
 
   const postColumns = [

@@ -1,6 +1,7 @@
 // com.baseball.baseballcommunitybe.admin.entity.AdminReport.java
 package com.baseball.baseballcommunitybe.admin.entity;
 
+import com.baseball.baseballcommunitybe.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,23 +15,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class AdminReport {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "reporter_id", nullable = false)
-    private Long reporterId;
-
-    @Column(nullable = false, length = 50)
-    private String targetType; // POST, COMMENT
-
-    @Column(nullable = false)
+    // reporterId 제거
+    private String targetType;
     private Long targetId;
-
-    @Column(name = "reason", nullable = false, length = 100)
     private String reason;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User reporter;
 }
+
+

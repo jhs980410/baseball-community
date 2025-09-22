@@ -22,7 +22,7 @@ public class AdminReportDto {
     public static AdminReportDto fromEntity(AdminReport entity) {
         return AdminReportDto.builder()
                 .id(entity.getId())
-                .reporterId(entity.getReporterId())   //
+                .reporterId(entity.getReporter().getId())   //
                 .reason(entity.getReason())
                 .targetType(entity.getTargetType())
                 .targetId(entity.getTargetId())

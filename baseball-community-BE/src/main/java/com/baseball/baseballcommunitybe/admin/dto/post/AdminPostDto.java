@@ -24,7 +24,7 @@ public class AdminPostDto {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .userId(entity.getId())
-                .teamId(entity.getId())
+                .teamId(entity.getTeamId())
                 .likeCount(entity.getStatus().getLikeCount())
                 .build();
     }
