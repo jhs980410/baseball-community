@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/check-email").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()   // 조회만 허용
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll() // 조회만 허용
                         .requestMatchers("/api/posts/**").authenticated()   // 작성/수정/삭제는 인증 필요

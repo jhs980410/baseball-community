@@ -12,6 +12,7 @@ import com.baseball.baseballcommunitybe.post.entity.PostStatus;
 import com.baseball.baseballcommunitybe.post.repository.PostEditHistoryRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository;
+import com.baseball.baseballcommunitybe.redis.repository.DailyStatsRedisRepository;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostEditHistoryRepository postEditHistoryRepository;
-
+    private final DailyStatsRedisRepository dailyStatsRedisRepository;
 
     // 전체 게시글 최신순 조회
     public Page<PostResponseDto> getAllPosts(int page, int size) {
@@ -117,7 +119,8 @@ public class PostService {
                 .score(0L)
                 .lastUpdated(LocalDateTime.now())
                 .build();
-
+        String today = LocalDate.now().toString();
+        dailyStatsRedisRepository.increment(today, "new_posts");
         postStatusRepository.save(status);
 
         return PostResponseDto.from(post, 0L, 0L, 0L, false);

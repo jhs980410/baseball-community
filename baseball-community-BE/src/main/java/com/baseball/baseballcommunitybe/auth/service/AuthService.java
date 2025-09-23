@@ -4,6 +4,7 @@ import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
+import com.baseball.baseballcommunitybe.redis.repository.DailyStatsRedisRepository;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -21,6 +23,7 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final DailyStatsRedisRepository dailyStatsRedisRepository;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -60,7 +63,8 @@ public class AuthService {
                 .role(User.Role.USER)
                 .status(User.Status.ACTIVE)
                 .build();
-
+        String today = LocalDate.now().toString();
+        dailyStatsRedisRepository.increment(today, "new_users");
         userRepository.save(user);
     }
 

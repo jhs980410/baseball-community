@@ -1,5 +1,6 @@
 package com.baseball.baseballcommunitybe.report.service;
 
+import com.baseball.baseballcommunitybe.redis.repository.DailyStatsRedisRepository;
 import com.baseball.baseballcommunitybe.report.dto.ReportRequestDto;
 import com.baseball.baseballcommunitybe.report.entity.*;
 import com.baseball.baseballcommunitybe.report.repository.ReportRepository;
@@ -10,13 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class ReportService {
 
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
-
+    private final DailyStatsRedisRepository dailyStatsRedisRepository;
     @Transactional
     public void report(Long targetId, ReportTargetType type, ReportRequestDto dto, Long userId) {
         User reporter = userRepository.findById(userId)
@@ -27,7 +30,8 @@ public class ReportService {
                 .ifPresent(r -> {
                     throw new IllegalStateException("이미 신고한 대상입니다.");
                 });
-
+        String today = LocalDate.now().toString();
+        dailyStatsRedisRepository.increment(today, "reports");
         reportRepository.save(new Report(type, targetId, reporter, dto.getReason()));
     }
 }

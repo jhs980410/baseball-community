@@ -24,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HotPostService {
 
-    private final PostRepository postRepository;
     private final PostStatusRepository postStatusRepository;
     private final LikeRepository likeRepository;
     private final HotPostRedisRepository hotPostRedisRepository;

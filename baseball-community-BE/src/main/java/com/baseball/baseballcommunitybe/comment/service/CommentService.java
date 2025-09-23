@@ -12,6 +12,7 @@ import com.baseball.baseballcommunitybe.comment.repository.CommentStatusReposito
 import com.baseball.baseballcommunitybe.post.entity.Post;
 import com.baseball.baseballcommunitybe.post.repository.PostRepository;
 import com.baseball.baseballcommunitybe.post.repository.PostStatusRepository;
+import com.baseball.baseballcommunitybe.redis.repository.DailyStatsRedisRepository;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +38,7 @@ public class CommentService {
     private final CommentStatusRepository commentStatusRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final CommentEditHistoryRepository commentEditHistoryRepository;
-
+    private final DailyStatsRedisRepository dailyStatsRedisRepository;
     /**
      * 마이페이지: 특정 유저의 댓글 목록 (페이징)
      */
@@ -124,6 +126,8 @@ public class CommentService {
                 .dislikeCount(0L)
                 .lastUpdated(LocalDateTime.now())
                 .build();
+        String today = LocalDate.now().toString();
+        dailyStatsRedisRepository.increment(today, "new_comments");
         commentStatusRepository.save(status);
 
         return mapToDtoWithEditInfoPost(comment);
