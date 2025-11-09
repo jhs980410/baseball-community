@@ -66,7 +66,7 @@ useEffect(() => {
         <Col span={8}>
           <Card>
             <Statistic title="전체 회원 수" value={data.totalUsers} />
-          </Card>
+          </Card> 인기글 Top 5
         </Col>
         <Col span={8}>
           <Card>

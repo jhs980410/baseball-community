@@ -123,7 +123,8 @@ public class JwtTokenProvider {
         // 2. 쿠키에서 ACCESS_TOKEN 확인
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("ACCESS_TOKEN".equals(cookie.getName())) {
+                String name = cookie.getName();
+                if ("ACCESS_TOKEN".equals(name) || "ADMIN_TOKEN".equals(name)) {
                     return cookie.getValue();
                 }
             }

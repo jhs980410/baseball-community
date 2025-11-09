@@ -27,19 +27,19 @@ const AdminLayout: React.FC = () => {
         />
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="./dashboard">Dashboard</Link>
           </Menu.Item>
           <Menu.Item key="users" icon={<UserOutlined />}>
-            <Link to="/users">Users</Link>
+            <Link to="./users">Users</Link>
           </Menu.Item>
           <Menu.Item key="posts" icon={<FileTextOutlined />}>
-            <Link to="/posts">Posts</Link>
+            <Link to="./posts">Posts</Link>
           </Menu.Item>
           <Menu.Item key="reports" icon={<ExclamationCircleOutlined />}>
-            <Link to="/reports">Reports</Link>
+            <Link to="./reports">Reports</Link>
           </Menu.Item>
           <Menu.Item key="notices" icon={<NotificationOutlined />}>
-            <Link to="/notices">Notices</Link>
+            <Link to="./notices">Notices</Link>
           </Menu.Item>
         </Menu>
       </Sider>
