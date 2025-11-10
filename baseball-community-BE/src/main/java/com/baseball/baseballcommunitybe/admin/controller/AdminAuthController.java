@@ -34,9 +34,10 @@ public class AdminAuthController {
         String role = jwtTokenProvider.getRoleFromToken(tokens.getAccessToken());
 
         // 관리자 계정만 로그인 허용
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!role.equalsIgnoreCase("SUPER_ADMIN") && !role.equalsIgnoreCase("ADMIN")) {
             return ResponseEntity.status(403).body("관리자 권한이 없습니다.");
         }
+
 
         // ADMIN_TOKEN 쿠키 생성 (HttpOnly)
         ResponseCookie cookie = ResponseCookie.from("ADMIN_TOKEN", tokens.getAccessToken())

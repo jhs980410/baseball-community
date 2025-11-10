@@ -7,12 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -31,16 +32,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = jwtTokenProvider.resolveToken(request);
             System.out.println("JwtAuthenticationFilter 실행됨, token=" + token);
+
             if (token != null && !jwtTokenProvider.isExpired(token)) {
                 Claims claims = jwtTokenProvider.parseToken(token);
                 Long userId = Long.valueOf(claims.getSubject());
-                String role = (String) claims.get("role");
+                String role = (String) claims.get("role"); // e.g., "ADMIN" or "SUPER_ADMIN"
 
-                // Spring Security 인증 객체 생성
+                //  ROLE_ prefix 붙여서 GrantedAuthority 생성
+                List<SimpleGrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userId, // principal
-                        null,   // credentials
-                        Collections.emptyList() // 권한 (필요 시 ROLE_USER 등으로 매핑)
+                        userId,
+                        null,
+                        authorities
                 );
                 ((UsernamePasswordAuthenticationToken) authentication)
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

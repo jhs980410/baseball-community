@@ -7,7 +7,7 @@ const AdminLoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  //  로그인 처리 함수
+  // 로그인 처리 함수
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
@@ -16,13 +16,23 @@ const AdminLoginPage: React.FC = () => {
         withCredentials: true, // HttpOnly 쿠키로 JWT 수신
       });
 
-      if (res.status === 200) {
-        message.success("✅ 관리자 로그인 성공");
-        console.log("관리자 로그인 성공:", res.data);
+          if (res.status === 200) {
+      message.success("✅ 관리자 로그인 성공");
+      console.log("관리자 로그인 성공:", res.data);
 
-        // JWT 토큰이 쿠키에 저장되었으므로 바로 대시보드로 이동
+      //  role 저장
+      if (res.data.role) {
+        localStorage.setItem("role", res.data.role);
+        localStorage.setItem("email", res.data.email);
+        localStorage.setItem("nickname", res.data.nickname);
+        console.log("저장된 관리자 권한:", res.data.role);
+      }
+
+      //  navigate 전에 약간의 시간 차 줌
+      setTimeout(() => {
         navigate("/admin/dashboard", { replace: true });
-      } else {
+      }, 100);
+    } else {
         message.error("로그인 실패: 서버 응답이 올바르지 않습니다.");
       }
     } catch (err: any) {

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface AdminUserRepository extends JpaRepository<AdminUser, Long> {
 
     // DTO 반환용 커스텀 projection 쿼리
@@ -22,6 +24,12 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long> {
     // 상태별 조회 (엔티티 기준)
     Page<AdminUser> findByStatus(AdminUser.Status status, Pageable pageable);
 
+    List<AdminUser> findByRoleIn(List<String> roles);
+
+    boolean existsByEmail(String email);
+
+    // SUPER_ADMIN 계정 수 세기
+    long countByRole(AdminUser.Role role);
 
 
 }

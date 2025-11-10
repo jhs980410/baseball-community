@@ -5,7 +5,6 @@ import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,7 +29,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                //  CORS 정책을 명시적으로 선언 (WebConfig와 함께 동작)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
@@ -43,15 +41,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 공용
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        //  관리자 로그인만 허용 (보안 목적)
-                        .requestMatchers("/api/admin/auth/**").permitAll()
-
-                        // 일반 조회용 GET은 허용
                         .requestMatchers(HttpMethod.GET, "/api/users/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+
+                        // 관리자 로그인 (별도 허용)
+                        .requestMatchers("/api/admin/auth/**").permitAll()
+
+                        // 총관리자 전용
+                        .requestMatchers("/api/super/**").hasRole("SUPER_ADMIN")
+
+                        // 관리자 전용
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+
+                        // 일반 사용자
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
 
                         // 인증 필요한 영역
                         .requestMatchers("/api/posts/**").authenticated()
@@ -59,13 +64,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/likes/**").authenticated()
                         .requestMatchers("/api/reports/**").authenticated()
 
-                        //  관리자 API는 임시로 전체 허용 (추후 hasRole("ADMIN")으로 변경)
-                        .requestMatchers("/api/admin/**").permitAll()
-
-                        // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
-                // JWT 필터 등록
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class);
 

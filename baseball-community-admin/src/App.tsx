@@ -7,6 +7,7 @@ import PostsPage from "./features/posts/PostsPage";
 import ReportsPage from "./features/reports/ReportsPage";
 import NoticesPage from "./features/notices/NoticesPage";
 import AdminLoginPage from "./features/users/AdminLoginPage";
+import SuperAdminsPage from "./features/users/SuperAdminsPage";
 
 const App: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const App: React.FC = () => {
       <Route path="posts" element={<PostsPage />} />
       <Route path="reports" element={<ReportsPage />} />
       <Route path="notices" element={<NoticesPage />} />
+      <Route path="super-admins" element={<SuperAdminsPage />} />
     </Route>
   </Routes>
 </Router>

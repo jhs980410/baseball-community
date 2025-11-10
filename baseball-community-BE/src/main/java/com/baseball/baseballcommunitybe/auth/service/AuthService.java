@@ -82,12 +82,12 @@ public class AuthService {
         // Access & Refresh Token 발급
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
-
+        String role = user.getRole().name();
         // DB에 Refresh Token 저장
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        return new TokenResponseDto(accessToken, refreshToken, user.getId(), user.getEmail(), user.getNickname());
+        return new TokenResponseDto(accessToken, refreshToken, user.getId(), user.getEmail(), user.getNickname(),role);
     }
 
     /**
@@ -132,7 +132,7 @@ public class AuthService {
         // 5. 새 Access Token & Refresh Token 발급
         String newAccess = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
         String newRefresh = jwtTokenProvider.createRefreshToken(user.getId());
-
+        String role = user.getRole().name();
         // 6. Refresh Token 갱신 (DB 업데이트)
         user.setRefreshToken(newRefresh);
         userRepository.save(user);
@@ -142,7 +142,8 @@ public class AuthService {
                 newRefresh,
                 user.getId(),
                 user.getEmail(),
-                user.getNickname()
+                user.getNickname(),
+                role
         );
     }
 

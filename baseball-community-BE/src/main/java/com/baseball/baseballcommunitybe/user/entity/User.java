@@ -30,7 +30,7 @@ public class User {
 
 
     public enum Role {
-        USER, ADMIN, MODERATOR;
+        USER, ADMIN, MODERATOR,SUPER_ADMIN;
 
         public static Role from(String value) {
             return Role.valueOf(value.toUpperCase());

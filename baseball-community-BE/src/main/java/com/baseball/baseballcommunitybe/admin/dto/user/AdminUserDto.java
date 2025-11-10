@@ -9,10 +9,25 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class AdminUserDto {
+
     private Long id;
     private String email;
     private String nickname;
     private AdminUser.Role role;
     private AdminUser.Status status;
     private LocalDateTime createdAt;
+
+    /**
+     * Entity → DTO 변환 메서드
+     */
+    public static AdminUserDto fromEntity(AdminUser entity) {
+        return new AdminUserDto(
+                entity.getId(),
+                entity.getEmail(),
+                entity.getNickname(),
+                entity.getRole(),
+                entity.getStatus(),
+                entity.getCreatedAt()
+        );
+    }
 }
