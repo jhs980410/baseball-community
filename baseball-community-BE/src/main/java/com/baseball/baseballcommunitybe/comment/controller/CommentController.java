@@ -4,6 +4,7 @@ import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.comment.dto.CommentRequestDto;
 import com.baseball.baseballcommunitybe.comment.dto.CommentResponseDto;
 import com.baseball.baseballcommunitybe.comment.service.CommentService;
+import com.baseball.baseballcommunitybe.common.aop.CheckSuspended;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,7 @@ public class CommentController {
     /**
      * 댓글/대댓글 작성 (parentId 유무로 구분)
      */
+    @CheckSuspended
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(
             @RequestBody CommentRequestDto dto,
@@ -56,6 +58,7 @@ public class CommentController {
     /**
      * 댓글 수정 (작성자만 가능)
      */
+    @CheckSuspended
     @PutMapping("/{id}")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long id,
@@ -70,6 +73,7 @@ public class CommentController {
     /**
      * 댓글 삭제 (작성자 또는 관리자만)
      */
+    @CheckSuspended
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long id,

@@ -41,7 +41,12 @@ export default function PostCreate() {
       navigate(`/teams/${teamId}`); //  RESTful 경로
     } catch (error) {
       console.error("게시글 등록 실패:", error);
-      alert("게시글 등록 중 오류가 발생했습니다.");
+        if (error.response?.status === 403) {
+          const msg = error.response.data?.message || "접근이 제한되었습니다.";
+          alert(msg); // -> "계정이 정지되었습니다. 관리자에게 문의하세요."
+        } else {
+          alert("게시글 등록 중 오류가 발생했습니다.");
+        }
     }
   };
 

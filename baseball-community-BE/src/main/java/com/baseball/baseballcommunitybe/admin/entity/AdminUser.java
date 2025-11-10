@@ -39,6 +39,10 @@ public class AdminUser {
     @Column(nullable = false, length = 20)
     private Status status;
 
+    private String suspendReason;
+    private LocalDateTime suspendedAt;
+
+
     public enum Role { USER, ADMIN, MODERATOR,SUPER_ADMIN; }
     public enum Status { ACTIVE, SUSPENDED, DELETED }
 }

@@ -4,10 +4,16 @@ import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.user.dto.UserResponseDto;
 import com.baseball.baseballcommunitybe.user.dto.UserUpdateRequestDto;
 import com.baseball.baseballcommunitybe.user.service.UserService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,6 +22,8 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper; //  Redis suspend-info 파싱용 ObjectMapper 추가
 
     /**
      * 내 정보 조회 (JWT 쿠키 기반)
@@ -25,7 +33,6 @@ public class UserController {
         Long userId = extractUserId(request);
         return ResponseEntity.ok(userService.getUser(userId));
     }
-
 
     /**
      * 특정 사용자 프로필 조회
@@ -58,7 +65,40 @@ public class UserController {
         return ResponseEntity.ok("회원 탈퇴 완료");
     }
 
-    /**
+    @GetMapping("/me/suspend-info")
+    public ResponseEntity<?> getMySuspendInfo(HttpServletRequest request) {
+        Long userId = extractUserId(request);
+        String key = "suspended:user:" + userId;
+
+        Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        if (ttl == null || ttl <= 0) {
+            return ResponseEntity.ok(Map.of(
+                    "suspended", false,
+                    "remainingSeconds", 0
+            ));
+        }
+
+        String data = redisTemplate.opsForValue().get(key);
+        String reason = "사유 없음";
+        String until = "알 수 없음";
+
+        try {
+            if (data != null) {
+                JsonNode node = objectMapper.readTree(data);
+                reason = node.path("reason").asText("사유 없음");
+                until = node.path("suspendedUntil").asText("알 수 없음");
+            }
+        } catch (Exception ignored) {}
+
+        return ResponseEntity.ok(Map.of(
+                "suspended", true,
+                "reason", reason,
+                "suspendedUntil", until,
+                "remainingSeconds", ttl
+        ));
+    }
+
+    /**q
      * 관리자: 특정 유저 상태 변경 (ACTIVE/SUSPENDED/DELETED)
      */
     @PatchMapping("/{id}/status")

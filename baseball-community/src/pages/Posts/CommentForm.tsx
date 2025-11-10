@@ -31,15 +31,27 @@ export default function CommentForm({
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("댓글 작성 실패");
+      // 🔹 403 (정지된 계정)
+      if (res.status === 403) {
+        const data = await res.json().catch(() => ({}));
+        const msg =
+          data.message || "계정이 정지되었습니다. 관리자에게 문의하세요.";
+        alert(msg);
+        return;
       }
 
+      // 🔹 기타 에러
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "댓글 작성 실패");
+      }
+
+      // 🔹 성공
       setContent("");
       onCommentAdded(); // 새로고침 콜백 실행
     } catch (err) {
-      console.error(err);
-      alert("댓글 작성 실패");
+      console.error("댓글 작성 중 오류:", err);
+      alert("댓글 작성 중 오류가 발생했습니다.");
     }
   };
 

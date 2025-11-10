@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Space, Button, message, Modal, Descriptions } from "antd";
+import {
+  Table,
+  Tag,
+  Space,
+  Button,
+  message,
+  Modal,
+  Descriptions,
+  Input,
+  Select,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { type User } from "../../types/user";
@@ -14,7 +24,6 @@ const UsersPage: React.FC = () => {
   const [data, setData] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  //  유저 목록 불러오기
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -33,7 +42,7 @@ const UsersPage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  //  상세 조회
+  /** 🔹 상세 조회 */
   const handleView = async (id: number) => {
     try {
       const res = await axios.get(`/api/admin/users/${id}`, { withCredentials: true });
@@ -99,26 +108,69 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  //  상태 변경 (정지 ↔ 복구)
-  const handleToggleStatus = async (id: number, currentStatus: string) => {
-    const newStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+  /** 🔹 회원 정지 (사유+기간 선택) */
+  const handleSuspend = (id: number) => {
+    let reason = "";
+    let duration = 24; // 기본 24시간
+
+    Modal.confirm({
+      title: "⚠️ 회원 정지 설정",
+      width: 450,
+      content: (
+        <div>
+          <p>정지 사유를 입력하세요:</p>
+          <Input
+            placeholder="예: 비속어 사용, 도배 행위 등"
+            onChange={(e) => (reason = e.target.value)}
+          />
+          <p style={{ marginTop: 10 }}>정지 기간 선택:</p>
+          <Select
+            defaultValue="24"
+            onChange={(v) => (duration = Number(v))}
+            style={{ width: "100%" }}
+          >
+            <Select.Option value="1">1시간</Select.Option>
+            <Select.Option value="6">6시간</Select.Option>
+            <Select.Option value="24">1일</Select.Option>
+            <Select.Option value="72">3일</Select.Option>
+            <Select.Option value="168">7일</Select.Option>
+            <Select.Option value="0">영구정지</Select.Option>
+          </Select>
+        </div>
+      ),
+      okText: "정지 적용",
+      cancelText: "취소",
+      async onOk() {
+        try {
+          await axios.patch(
+            `/api/admin/users/${id}/suspend`,
+            { reason, durationHours: duration },
+            { withCredentials: true }
+          );
+          message.success("회원이 정지되었습니다.");
+          fetchUsers();
+        } catch (err) {
+          console.error("정지 실패:", err);
+          message.error("회원 정지 처리에 실패했습니다.");
+        }
+      },
+    });
+  };
+
+  /** 🔹 복구 */
+  const handleUnsuspend = async (id: number) => {
     try {
-      await axios.patch(
-        `/api/admin/users/${id}`,
-        { status: newStatus },
-        { withCredentials: true }
-      );
-      message.success(`사용자 #${id} 상태가 ${newStatus === "SUSPENDED" ? "정지" : "복구"}되었습니다.`);
-      setData((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, status: newStatus } : u))
-      );
+      await axios.patch(`/api/admin/users/${id}/unsuspend`, null, {
+        withCredentials: true,
+      });
+      message.success("회원 정지가 해제되었습니다.");
+      fetchUsers();
     } catch (err) {
-      console.error("상태 변경 실패:", err);
-      message.error("상태 변경에 실패했습니다.");
+      console.error("복구 실패:", err);
+      message.error("회원 복구에 실패했습니다.");
     }
   };
 
-  //  테이블 컬럼
   const columns: ColumnsType<User> = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "이메일", dataIndex: "email", key: "email" },
@@ -157,13 +209,16 @@ const UsersPage: React.FC = () => {
           <Button type="link" onClick={() => handleView(record.id)}>
             보기
           </Button>
-          <Button
-            type="link"
-            danger={record.status === "ACTIVE"}
-            onClick={() => handleToggleStatus(record.id, record.status)}
-          >
-            {record.status === "ACTIVE" ? "정지" : "복구"}
-          </Button>
+
+          {record.status === "ACTIVE" ? (
+            <Button type="link" danger onClick={() => handleSuspend(record.id)}>
+              정지
+            </Button>
+          ) : (
+            <Button type="link" onClick={() => handleUnsuspend(record.id)}>
+              복구
+            </Button>
+          )}
         </Space>
       ),
     },

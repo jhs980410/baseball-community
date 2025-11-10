@@ -1,6 +1,7 @@
 package com.baseball.baseballcommunitybe.post.controller;
 
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
+import com.baseball.baseballcommunitybe.common.aop.CheckSuspended;
 import com.baseball.baseballcommunitybe.post.dto.PostDetailResponseDto;
 import com.baseball.baseballcommunitybe.post.dto.PostRequestDto;
 import com.baseball.baseballcommunitybe.post.dto.PostResponseDto;
@@ -93,6 +94,7 @@ public class PostController {
     /**
      * 게시글 작성
      */
+    @CheckSuspended
     @PostMapping
     public PostResponseDto createPost(
             @RequestBody PostRequestDto requestDto,
@@ -105,6 +107,7 @@ public class PostController {
     /**
      * 게시글 수정
      */
+    @CheckSuspended
     @PutMapping("/{postId}")
     public PostResponseDto updatePost(
             @PathVariable Long postId,
@@ -118,6 +121,7 @@ public class PostController {
     /**
      * 게시글 삭제
      */
+    @CheckSuspended
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
             @PathVariable Long postId,

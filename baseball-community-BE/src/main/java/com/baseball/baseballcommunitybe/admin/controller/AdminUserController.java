@@ -65,4 +65,39 @@ public class AdminUserController {
     public static class UpdateStatusRequest {
         private String status; // 예: "SUSPENDED" or "ACTIVE"
     }
+
+    /** 기존 목록 / 상세 / 상태 변경은 그대로 유지 **/
+
+    /**
+     * 회원 정지
+     * PATCH /api/admin/users/{id}/suspend
+     */
+    @PatchMapping("/{id}/suspend")
+    @Transactional
+    public ResponseEntity<Void> suspendUser(
+            @PathVariable Long id,
+            @RequestBody SuspendRequest request
+    ) {
+        adminUserService.suspendUser(id, request.getReason(), request.getDurationHours());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 회원 정지 해제
+     * PATCH /api/admin/users/{id}/unsuspend
+     */
+    @PatchMapping("/{id}/unsuspend")
+    @Transactional
+    public ResponseEntity<Void> unsuspendUser(@PathVariable Long id) {
+        adminUserService.unsuspendUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** 요청 DTOs **/
+    @Getter
+    @Setter
+    public static class SuspendRequest {
+        private String reason;
+        private long durationHours; // 0이면 영구정지
+    }
 }
