@@ -23,11 +23,16 @@ interface UserDetail extends User {
 const UsersPage: React.FC = () => {
   const [data, setData] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const fetchUsers = async () => {
+  /** 🔹 회원 목록 불러오기 */
+  const fetchUsers = async (nickname?: string) => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/admin/users", { withCredentials: true });
+      const res = await axios.get("/api/admin/users", {
+        params: nickname ? { nickname } : {}, // ✅ 닉네임 검색
+        withCredentials: true,
+      });
       const users = res.data.content || res.data;
       setData(users);
     } catch (err) {
@@ -41,6 +46,12 @@ const UsersPage: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  /** 🔹 닉네임 검색 */
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    fetchUsers(value);
+  };
 
   /** 🔹 상세 조회 */
   const handleView = async (id: number) => {
@@ -148,7 +159,7 @@ const UsersPage: React.FC = () => {
             { withCredentials: true }
           );
           message.success("회원이 정지되었습니다.");
-          fetchUsers();
+          fetchUsers(searchTerm);
         } catch (err) {
           console.error("정지 실패:", err);
           message.error("회원 정지 처리에 실패했습니다.");
@@ -164,7 +175,7 @@ const UsersPage: React.FC = () => {
         withCredentials: true,
       });
       message.success("회원 정지가 해제되었습니다.");
-      fetchUsers();
+      fetchUsers(searchTerm);
     } catch (err) {
       console.error("복구 실패:", err);
       message.error("회원 복구에 실패했습니다.");
@@ -227,6 +238,17 @@ const UsersPage: React.FC = () => {
   return (
     <div>
       <h2>👥 회원 관리</h2>
+
+      {/* 🔍 닉네임 검색창 */}
+      <Input.Search
+        placeholder="닉네임으로 검색"
+        allowClear
+        enterButton="검색"
+        size="large"
+        style={{ width: 300, marginBottom: 16 }}
+        onSearch={handleSearch}
+      />
+
       <Table<User>
         columns={columns}
         dataSource={data}

@@ -30,4 +30,14 @@ public class AdminUserDto {
                 entity.getCreatedAt()
         );
     }
+
+    public AdminUserDto(AdminUser adminUser) {
+        this.id = adminUser.getId();
+        this.email = adminUser.getEmail();
+        this.nickname = adminUser.getNickname();
+        this.role = adminUser.getRole();
+        this.status = adminUser.getStatus();
+        this.createdAt = adminUser.getCreatedAt();
+    }
+
 }

@@ -28,12 +28,15 @@ public class AdminUserController {
     @GetMapping
     public ResponseEntity<Page<AdminUserDto>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String nickname
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<AdminUserDto> users = adminUserService.findAllAsDto(pageable);
+        Page<AdminUserDto> users = adminUserService.findAllAsDto(nickname, pageable);
         return ResponseEntity.ok(users);
     }
+
+
 
     /**
      * 회원 상세 조회 (신고 수, 글 수, 댓글 수 포함)

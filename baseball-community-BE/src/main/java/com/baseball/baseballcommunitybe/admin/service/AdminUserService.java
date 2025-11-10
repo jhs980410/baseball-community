@@ -27,8 +27,12 @@ public class AdminUserService {
     private final AdminCommentRepository adminCommentRepository;
     private final AdminPostRepository adminPostRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    public Page<AdminUserDto> findAllAsDto(Pageable pageable) {
-        return adminUserRepository.findAllAsDto(pageable);
+    public Page<AdminUserDto> findAllAsDto(String nickname, Pageable pageable) {
+        Page<AdminUser> admins = (nickname == null || nickname.isBlank())
+                ? adminUserRepository.findAll(pageable)
+                : adminUserRepository.findByNicknameContainingIgnoreCase(nickname, pageable);
+
+        return admins.map(AdminUserDto::new);
     }
 
 

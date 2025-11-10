@@ -32,4 +32,5 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long> {
     long countByRole(AdminUser.Role role);
 
 
+    Page<AdminUser> findByNicknameContainingIgnoreCase(String nickname, Pageable pageable);
 }
