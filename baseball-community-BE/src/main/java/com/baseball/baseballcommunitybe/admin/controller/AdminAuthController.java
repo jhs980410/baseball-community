@@ -4,6 +4,7 @@ import com.baseball.baseballcommunitybe.auth.dto.LoginRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -55,17 +56,24 @@ public class AdminAuthController {
      * DELETE /api/admin/auth/logout
      */
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> adminLogout(HttpServletResponse response) {
-        // ADMIN_TOKEN 쿠키 만료 처리
+    public ResponseEntity<Void> adminLogout(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("관리자 로그아웃 실행됨");
+
+        String token = jwtTokenProvider.resolveToken(request);
+        System.out.println("관리자 토큰 = " + token);
+        authService.logout(token);
+
         ResponseCookie expiredCookie = ResponseCookie.from("ADMIN_TOKEN", "")
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("Lax")
+                .sameSite("Lax") // 로컬에서는 None
                 .path("/")
-                .maxAge(0) // 즉시 만료
+                .maxAge(0)
                 .build();
 
         response.addHeader("Set-Cookie", expiredCookie.toString());
         return ResponseEntity.noContent().build();
     }
+
 }
+

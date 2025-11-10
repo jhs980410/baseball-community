@@ -1,18 +1,22 @@
 package com.baseball.baseballcommunitybe.admin.dto.user;
 
-import com.baseball.baseballcommunitybe.admin.entity.AdminUser;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @AllArgsConstructor
-public class AdminUserDto {
+@NoArgsConstructor
+public class AdminUserDetailDto {
     private Long id;
     private String email;
     private String nickname;
-    private AdminUser.Role role;
-    private AdminUser.Status status;
+    private String role;
+    private String status;
+    private int reportCount;
+    private int postCount;
+    private int commentCount;
     private LocalDateTime createdAt;
 }

@@ -113,22 +113,35 @@ public class JwtTokenProvider {
 
     //  토큰 추출 (Authorization 헤더 + 쿠키 둘 다 지원)
     public String resolveToken(HttpServletRequest request) {
-        System.out.println("resolveToken 실행됨!");
-        // 1. Authorization 헤더 우선
+        System.out.println("resolveToken 실행됨");
+
+        // 1. Authorization 헤더에서 토큰 확인
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
+            System.out.println("Authorization 헤더에서 토큰 추출됨");
             return bearer.substring(7);
         }
 
-        // 2. 쿠키에서 ACCESS_TOKEN 확인
+        // 2. 쿠키에서 토큰 확인 (ACCESS_TOKEN, ADMIN_TOKEN 순서)
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 String name = cookie.getName();
-                if ("ACCESS_TOKEN".equals(name) || "ADMIN_TOKEN".equals(name)) {
+                if ("ADMIN_TOKEN".equals(name)) {
+                    System.out.println("ADMIN_TOKEN 쿠키 발견됨");
+                    return cookie.getValue();
+                }
+            }
+            for (Cookie cookie : request.getCookies()) {
+                String name = cookie.getName();
+                if ("ACCESS_TOKEN".equals(name)) {
+                    System.out.println("ACCESS_TOKEN 쿠키 발견됨");
                     return cookie.getValue();
                 }
             }
         }
-        return null; // 없으면 null
+
+        System.out.println("토큰을 찾을 수 없음");
+        return null;
     }
+
 }

@@ -7,13 +7,24 @@ import {
   ExclamationCircleOutlined,
   NotificationOutlined,
 } from "@ant-design/icons";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
 
+  //  로그아웃 함수
+const handleLogout = async () => {
+  try {
+    await axios.delete("/api/admin/auth/logout", { withCredentials: true });
+    navigate("/"); // 로그아웃 후 메인으로 이동
+  } catch (error) {
+    console.error("로그아웃 실패:", error);
+  }
+};
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* 사이드바 */}
@@ -46,12 +57,31 @@ const AdminLayout: React.FC = () => {
 
       {/* 메인 레이아웃 */}
       <Layout>
-        <Header style={{ background: "#fff", padding: 0, textAlign: "right", paddingRight: 20 }}>
-          <span>관리자님</span> | <a href="/logout">Logout</a>
+        <Header
+          style={{
+            background: "#fff",
+            padding: 0,
+            textAlign: "right",
+            paddingRight: 20,
+          }}
+        >
+          <span>관리자님</span> |{" "}
+          {/* 🔹 클릭 시 로그아웃 함수 실행 */}
+          <button
+            onClick={handleLogout}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#1890ff",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
         </Header>
         <Content style={{ margin: "16px" }}>
           <div style={{ padding: 24, background: "#fff", minHeight: 360 }}>
-            <Outlet /> {/* 라우터 페이지가 여기에 렌더링 */}
+            <Outlet /> {/* 하위 라우터 렌더링 */}
           </div>
         </Content>
       </Layout>

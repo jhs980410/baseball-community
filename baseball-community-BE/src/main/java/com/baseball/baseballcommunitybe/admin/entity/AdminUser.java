@@ -2,14 +2,15 @@ package com.baseball.baseballcommunitybe.admin.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminUser {
 
     @Id
@@ -19,23 +20,24 @@ public class AdminUser {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Column(nullable = false)
+    private String password; // 🔹 반드시 추가
+
     @Column(nullable = false, unique = true, length = 50)
     private String nickname;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role;  // 대문자 Role → 소문자 role 로 수정
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
 
-    // === Enum 정의 ===
-    public enum Role {
-        USER, ADMIN, MODERATOR
-    }
-
-    public enum Status {
-        ACTIVE, SUSPENDED, DELETED
-    }
+    public enum Role { USER, ADMIN, MODERATOR }
+    public enum Status { ACTIVE, SUSPENDED, DELETED }
 }

@@ -30,11 +30,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ CORS 정책을 명시적으로 선언 (WebConfig와 함께 동작)
+                //  CORS 정책을 명시적으로 선언 (WebConfig와 함께 동작)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
@@ -44,7 +44,7 @@ public class SecurityConfig {
                         // 공용
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // ✅ 관리자 로그인만 허용 (보안 목적)
+                        //  관리자 로그인만 허용 (보안 목적)
                         .requestMatchers("/api/admin/auth/**").permitAll()
 
                         // 일반 조회용 GET은 허용
@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/likes/**").authenticated()
                         .requestMatchers("/api/reports/**").authenticated()
 
-                        // ✅ 관리자 API는 임시로 전체 허용 (추후 hasRole("ADMIN")으로 변경)
+                        //  관리자 API는 임시로 전체 허용 (추후 hasRole("ADMIN")으로 변경)
                         .requestMatchers("/api/admin/**").permitAll()
 
                         // 그 외 요청은 인증 필요
