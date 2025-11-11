@@ -176,7 +176,7 @@ public class PostService {
 
     // 검색
     public Page<PostResponseDto> searchPosts(String type, String keyword, int page, int size) {
-        return postRepository.searchPosts(type, keyword, PageRequest.of(page, size));
+        return postRepository.searchVisiblePosts(type, keyword, PageRequest.of(page, size));
     }
 
 

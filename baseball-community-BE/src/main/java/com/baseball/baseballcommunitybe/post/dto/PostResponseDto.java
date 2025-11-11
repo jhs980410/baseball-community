@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class PostResponseDto {
+
     private Long id;
     private String title;
     private String content;
@@ -24,13 +25,36 @@ public class PostResponseDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-    //posts_status 에서 가져올값들
+
+    // post_status에서 가져오는 값들
     private Long commentCount;
     private Long likeCount;
     private Long viewCount;
-    private boolean likedByCurrentUser;
 
-    // JPQL Constructor Expression에서 사용될 생성자
+    private boolean likedByCurrentUser;
+    private Boolean isHidden;
+
+    /** ✅ JPQL에서 사용할 풀 생성자 (userId, teamId, isHidden까지 포함) */
+    public PostResponseDto(Long id, String title, String content, String nickname,
+                           Long userId, Long teamId,
+                           LocalDateTime createdAt, LocalDateTime updatedAt,
+                           Long commentCount, Long likeCount, Long viewCount,
+                           Boolean isHidden) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.nickname = nickname;
+        this.userId = userId;
+        this.teamId = teamId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
+        this.viewCount = viewCount;
+        this.isHidden = isHidden;
+    }
+
+    /** ✅ 기존 JPQL (isHidden 제외 구버전 쿼리용) */
     public PostResponseDto(Long id, String title, String content,
                            String nickname, LocalDateTime createdAt, LocalDateTime updatedAt,
                            Long commentCount, Long likeCount, Long viewCount) {
@@ -45,7 +69,7 @@ public class PostResponseDto {
         this.viewCount = viewCount;
     }
 
-    // 엔티티 기반 생성자
+    /** ✅ 엔티티 기반 생성자 */
     public PostResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
@@ -54,28 +78,29 @@ public class PostResponseDto {
         this.teamId = post.getTeamId();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
+        this.isHidden = post.getIsHidden();
     }
 
-    // 정적 팩토리 메서드
-    public static PostResponseDto from(Post post, Long commentCount, Long likeCount, Long viewCount, boolean likedByCurrentUser) {
+    /** ✅ 정적 팩토리 메서드 (엔티티 → DTO 변환용, XSS 필터 포함) */
+    public static PostResponseDto from(Post post,
+                                       Long commentCount, Long likeCount, Long viewCount,
+                                       boolean likedByCurrentUser) {
         // XSS 방지: 위험한 스크립트 제거, 기본적인 스타일 태그 허용
         String safeContent = Jsoup.clean(post.getContent(), Safelist.relaxed());
 
         return new PostResponseDto(
                 post.getId(),
                 post.getTitle(),
-                safeContent,   // 정제된 HTML 반환
+                safeContent,
                 post.getUser() != null ? post.getUser().getNickname() : "알 수 없음",
                 post.getUser() != null ? post.getUser().getId() : null,
-                post.getTeamId() != null ? post.getTeamId() : null,
+                post.getTeamId(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentCount,
                 likeCount,
                 viewCount,
-                likedByCurrentUser
+                post.getIsHidden()
         );
     }
-
-
 }

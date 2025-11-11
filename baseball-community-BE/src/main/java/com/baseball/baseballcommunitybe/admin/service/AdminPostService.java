@@ -16,22 +16,23 @@ public class AdminPostService {
 
     private final AdminPostRepository adminPostRepository;
 
-    /**  게시글 전체 조회 (페이징 + 상태 포함) */
+    /**
+     * 게시글 전체 조회 (isHidden 포함 + 상태정보 함께)
+     * JPQL 기반 DTO 직접 매핑 쿼리 사용
+     */
     @Transactional(readOnly = true)
     public Page<AdminPostDto> getAllPosts(Pageable pageable) {
-        Page<AdminPost> postsPage = adminPostRepository.findAllWithStatus(pageable);
-        return postsPage.map(AdminPostDto::fromEntity);
+        return adminPostRepository.findAllWithStatusAndHidden(pageable);
     }
 
-    /**  단건 상세조회 */
+    /** 단건 상세조회 */
     @Transactional(readOnly = true)
     public AdminPostDetailDto getPostDetail(Long postId) {
         return adminPostRepository.findDetailWithHidden(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
     }
 
-
-    /**  게시글 숨김 처리 (Soft Delete) */
+    /** 게시글 숨김 처리 (Soft Delete) */
     @Transactional
     public void hidePost(Long postId) {
         int updated = adminPostRepository.hidePost(postId);
@@ -40,7 +41,7 @@ public class AdminPostService {
         }
     }
 
-    /**  게시글 복구 처리 */
+    /** 게시글 복구 처리 */
     @Transactional
     public void restorePost(Long postId) {
         int updated = adminPostRepository.restorePost(postId);
@@ -49,7 +50,7 @@ public class AdminPostService {
         }
     }
 
-    /**  관리자 플래그 설정 */
+    /** 관리자 플래그 설정 */
     @Transactional
     public void flagPost(Long postId, String reason) {
         AdminPost post = adminPostRepository.findById(postId)
@@ -63,7 +64,7 @@ public class AdminPostService {
         post.getStatus().setLastFlagReason(reason != null ? reason : "관리자 지정 플래그");
     }
 
-    /**  플래그 해제 및 복구 */
+    /** 플래그 해제 및 복구 */
     @Transactional
     public void unflagPost(Long postId) {
         AdminPost post = adminPostRepository.findById(postId)
@@ -75,7 +76,7 @@ public class AdminPostService {
         }
     }
 
-    /**  특정 유저의 게시글 수 조회 */
+    /** 특정 유저의 게시글 수 조회 */
     @Transactional(readOnly = true)
     public long getPostCountByUser(Long userId) {
         return adminPostRepository.countByUserId(userId);

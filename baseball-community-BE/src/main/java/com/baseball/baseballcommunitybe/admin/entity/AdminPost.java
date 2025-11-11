@@ -3,7 +3,6 @@ package com.baseball.baseballcommunitybe.admin.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
-// AdminPost.java
 
 @Entity
 @Table(name = "posts")
@@ -26,9 +25,9 @@ public class AdminPost {
     @Column(name = "team_id")
     private Long teamId;
 
-
+    //  Formula는 Integer로 받고, 실제 Boolean 변환은 getter에서 수행
     @Formula("(SELECT p.is_hidden FROM posts p WHERE p.id = id)")
-    private Integer hiddenValue;  // DB 값 직접 읽기 (0 또는 1)
+    private Integer hiddenValue;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -36,5 +35,11 @@ public class AdminPost {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "post_id")
     private AdminPostStatus status;
-}
 
+    //  실제 접근용 getter (DTO 매핑 시에도 사용 가능)
+    public Boolean getIsHidden() {
+        return hiddenValue != null && hiddenValue == 1;
+    }
+
+
+}

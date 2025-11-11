@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "post_status")
 @Getter
@@ -15,10 +14,10 @@ public class PostStatus {
 
     @Id
     @Column(name = "post_id")
-    private Long postId;  // posts.id와 1:1 매핑
+    private Long postId;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId   //  post의 PK가 post_status.post_id로 매핑됨
+    @MapsId
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -37,7 +36,24 @@ public class PostStatus {
     @Column(name = "last_updated", nullable = false)
     private LocalDateTime lastUpdated = LocalDateTime.now();
 
-    // 카운트 업데이트용 헬퍼 메서드
+    @Column(name = "report_count", nullable = false)
+    private Integer reportCount = 0;
+
+    @PrePersist
+    public void onCreate() {
+        this.lastUpdated = LocalDateTime.now();
+        if (this.commentCount == null) this.commentCount = 0L;
+        if (this.likeCount == null) this.likeCount = 0L;
+        if (this.viewCount == null) this.viewCount = 0L;
+        if (this.score == null) this.score = 0L;
+        if (this.reportCount == null) this.reportCount = 0;
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.lastUpdated = LocalDateTime.now();
+    }
+
     public void incrementCommentCount() { this.commentCount++; touchUpdatedTime(); }
     public void decrementCommentCount() { this.commentCount--; touchUpdatedTime(); }
     public void incrementLikeCount() { this.likeCount++; touchUpdatedTime(); }

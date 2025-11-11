@@ -72,10 +72,10 @@ const PostsPage: React.FC = () => {
     { title: "제목", dataIndex: "title", key: "title" },
     {
       title: "상태",
-      dataIndex: "hidden",
-      key: "hidden",
-      render: (hidden: boolean) =>
-        hidden ? <Tag color="red">숨김</Tag> : <Tag color="green">노출</Tag>,
+      dataIndex: "isHidden",
+      key: "isHidden",
+      render: (isHidden: boolean) =>
+        isHidden ? <Tag color="red">숨김</Tag> : <Tag color="green">노출</Tag>,
     },
     {
       title: "플래그",
@@ -141,7 +141,7 @@ const PostsPage: React.FC = () => {
               />
             </Descriptions.Item>
             <Descriptions.Item label="상태">
-              {selectedPost.hidden ? (
+              {selectedPost.isHidden ? (
                 <Tag color="red">숨김</Tag>
               ) : (
                 <Tag color="green">노출</Tag>
