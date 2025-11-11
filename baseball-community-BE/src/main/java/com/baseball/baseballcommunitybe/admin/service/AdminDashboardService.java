@@ -36,7 +36,7 @@ public class AdminDashboardService {
                         .stream().map(DailyStatsDto::fromEntity).toList())
 
                 // 인기글 Top 5
-                .topPosts(adminPostRepository.findTop5ByOrderByLikeCountDesc()
+                .topPosts(adminPostRepository.findTop5ByOrderByStatus_LikeCountDesc()
                         .stream().map(AdminPostDto::fromEntity).toList())
 
                 // 최근 신고 Top 100

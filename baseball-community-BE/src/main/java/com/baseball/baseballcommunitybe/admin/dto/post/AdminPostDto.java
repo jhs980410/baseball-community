@@ -18,6 +18,7 @@ public class AdminPostDto {
     private Long userId;
     private Long teamId;
     private Long likeCount;
+    private Boolean isHidden;
 
     public static AdminPostDto fromEntity(AdminPost entity) {
         return AdminPostDto.builder()
