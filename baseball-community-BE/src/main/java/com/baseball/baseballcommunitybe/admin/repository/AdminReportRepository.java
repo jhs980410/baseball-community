@@ -1,7 +1,7 @@
 package com.baseball.baseballcommunitybe.admin.repository;
 
 import com.baseball.baseballcommunitybe.admin.entity.AdminReport;
-import com.baseball.baseballcommunitybe.report.entity.Report;
+import com.baseball.baseballcommunitybe.report.entity.ReportTargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +16,16 @@ public interface AdminReportRepository extends JpaRepository<AdminReport, Long> 
     // 특정유저 신고 횟수 조회
     @Query("SELECT COUNT(r) FROM Report r WHERE r.targetId = :userId")
     int countReportsByUserId(@Param("userId") Long userId);
+
+
+    // 게시글 신고만 조회
+    List<AdminReport> findByTargetTypeOrderByCreatedAtDesc(ReportTargetType targetType);
+
+    // 상태별 조회 (예: pending만)
+    List<AdminReport> findByTargetTypeAndStatusOrderByCreatedAtDesc(
+            ReportTargetType targetType,
+            com.baseball.baseballcommunitybe.report.entity.ReportStatus status
+    );
 
 
 }

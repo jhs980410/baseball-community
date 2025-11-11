@@ -10,20 +10,24 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "reports", indexes = {
-        @Index(name = "idx_target", columnList = "targetType, targetId")
-})
+@Table(
+        name = "reports",
+        indexes = {
+                @Index(name = "idx_target", columnList = "target_type, target_id")
+        }
+)
 public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") // 명시적 매핑
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReportTargetType targetType; // POST, COMMENT
+    @Column(name = "target_type", nullable = false)
+    private ReportTargetType targetType; // POST, COMMENT, USER
 
-    @Column(nullable = false)
+    @Column(name = "target_id", nullable = false)
     private Long targetId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,13 +35,14 @@ public class Report {
     private User reporter;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "reason", nullable = false)
     private ReportReason reason; // spam, abuse, adult, personal_info
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Report(ReportTargetType targetType, Long targetId, User reporter, ReportReason reason) {
