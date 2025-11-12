@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Space, Button, message } from "antd";
+import { Table, Tag, Space, Button, message, Modal, Select } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import type { Report } from "./report";
@@ -7,6 +7,8 @@ import type { Report } from "./report";
 const ReportsPosts: React.FC = () => {
   const [data, setData] = useState<Report[]>([]);
   const [loading, setLoading] = useState(false);
+  const [actionModal, setActionModal] = useState<{ open: boolean; id?: number }>({ open: false });
+  const [selectedAction, setSelectedAction] = useState<string>("");
 
   // 🚀 신고 데이터 가져오기
   const fetchReports = async () => {
@@ -30,10 +32,37 @@ const ReportsPosts: React.FC = () => {
   const statusColor = (status: string) => {
     const s = status.toLowerCase();
     switch (s) {
-      case "pending": return "red";
-      case "reviewed": return "blue";
-      case "resolved": return "green";
-      default: return "gray";
+      case "pending":
+        return "red";
+      case "reviewed":
+        return "blue";
+      case "resolved":
+        return "green";
+      default:
+        return "gray";
+    }
+  };
+
+  // ✅ 조치 실행
+  const handleAction = async () => {
+    if (!actionModal.id || !selectedAction) {
+      message.warning("조치 내용을 선택하세요.");
+      return;
+    }
+
+    try {
+      await axios.patch(
+        `/api/admin/reports/${actionModal.id}/handle`,
+        { action: selectedAction, adminNote: "관리자 게시글 조치" },
+        { withCredentials: true }
+      );
+      message.success("조치가 완료되었습니다.");
+      setActionModal({ open: false });
+      setSelectedAction("");
+      fetchReports();
+    } catch (err) {
+      console.error(err);
+      message.error("조치 처리 중 오류가 발생했습니다.");
     }
   };
 
@@ -63,6 +92,9 @@ const ReportsPosts: React.FC = () => {
           <Button type="link" onClick={() => handleViewPost(record.targetId)}>
             보기
           </Button>
+          <Button type="link" onClick={() => setActionModal({ open: true, id: record.id })}>
+            조치
+          </Button>
           <Button type="link" danger onClick={() => handleDeleteReport(record.id)}>
             삭제
           </Button>
@@ -71,7 +103,7 @@ const ReportsPosts: React.FC = () => {
     },
   ];
 
-  // 🔍 게시글 보기 (추후 상세 페이지 연동)
+  // 🔍 게시글 보기 (추후 상세 페이지 연결 예정)
   const handleViewPost = (postId: number) => {
     message.info(`(미구현) 게시글 ${postId} 보기`);
   };
@@ -89,13 +121,38 @@ const ReportsPosts: React.FC = () => {
   };
 
   return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      pagination={{ pageSize: 10 }}
-      loading={loading}
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+        loading={loading}
+      />
+
+      {/* 조치 모달 */}
+      <Modal
+        title="게시글 신고 조치"
+        open={actionModal.open}
+        onOk={handleAction}
+        onCancel={() => setActionModal({ open: false })}
+        okText="확인"
+        cancelText="취소"
+      >
+        <p>조치 유형을 선택하세요:</p>
+        <Select
+          style={{ width: "100%" }}
+          placeholder="조치 선택"
+          onChange={setSelectedAction}
+          value={selectedAction}
+          options={[
+            { label: "게시글 숨김", value: "HIDE_POST" },
+            { label: "게시글 삭제", value: "DELETE_POST" },
+            { label: "작성자 경고", value: "WARN_USER" },
+          ]}
+        />
+      </Modal>
+    </>
   );
 };
 

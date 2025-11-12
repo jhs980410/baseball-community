@@ -114,5 +114,23 @@ ORDER BY p.id DESC
     WHERE p.id = :postId
     """)
     Optional<AdminPostDetailDto> findDetailWithHidden(@Param("postId") Long postId);
+    /**
+     * 신고 대상 게시글 작성자 ID 조회
+     */
+    @Query("SELECT p.user.id FROM Post p WHERE p.id = :postId")
+    Long findAuthorIdByPostId(@Param("postId") Long postId);
 
+    /**
+     * 게시글 숨김 (관리자 조치)
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Post p SET p.isHidden = TRUE WHERE p.id = :postId")
+    void adminHidePost(@Param("postId") Long postId);
+
+    /**
+     * 게시글 삭제 (soft delete)
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Post p SET p.isHidden = TRUE WHERE p.id = :postId")
+    void adminSoftDelete(@Param("postId") Long postId);
 }
