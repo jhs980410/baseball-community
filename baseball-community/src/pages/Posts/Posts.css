@@ -136,6 +136,10 @@
 .post-views {
   font-size: 13px;
 }
+.notice-row {
+  background-color: #fff9d6;
+  font-weight: bold;
+}
 
 /* ==============================
    반응형
@@ -156,3 +160,4 @@
     font-size: 14px;
   }
 }
+

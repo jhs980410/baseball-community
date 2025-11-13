@@ -11,7 +11,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import PostCreate from "./pages/Posts/PostCreate";
 import PostEdit from "./pages/Posts/PostEdit";
 import SearchPage from "./pages/board/SearchPage";
-
+import NoticeDetail from "./pages/Posts/notice";
 function App() {
   return (
     <AuthProvider>
@@ -27,6 +27,8 @@ function App() {
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/teams/:id" element={<TeamPage />} />
           <Route path="/search" element={<SearchPage />} />
+            <Route path="/notice/:id" element={<NoticeDetail />} />
+
     
         </Route>  
       </Routes>

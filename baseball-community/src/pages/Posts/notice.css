@@ -1,0 +1,69 @@
+/* NoticeDetail.css */
+
+.notice-detail-container {
+  width: 90%;
+  max-width: 800px;
+  min-height: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 상단 고정 라벨 */
+.notice-pin {
+  display: inline-block;
+  padding: 4px 8px;
+  background: gold;
+  color: #333;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+/* 제목 */
+.notice-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* 작성 정보 */
+.notice-meta {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.notice-meta .date {
+  margin-right: 10px;
+}
+
+/* 본문 */
+.notice-content {
+  font-size: 1rem;
+  line-height: 1.7;
+  white-space: pre-line;
+  margin-bottom: 30px;
+}
+
+/* 목록으로 버튼 */
+.back-to-list {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.back-to-list button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.back-to-list button:hover {
+  background: #e0e0e0;
+}
