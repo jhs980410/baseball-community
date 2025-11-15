@@ -1,11 +1,133 @@
 .sidebar {
-  margin-top: 20px;
-  background: #f5f5f5;
+  width: 260px;
+  background: #f8f9fa;
   padding: 20px;
+  border: 1px solid #ddd;
 }
 
-.stat-box {
-  margin: 10px 0;
+/* 제목 */
+.sidebar-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* 팀 슬라이더 (◀ LG ▶) */
+.team-slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.arrow-btn {
+  background: #e9ecef;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.15s ease;
+}
+
+.arrow-btn:hover {
+  background: #d6d6d6;
+}
+
+.team-name-display {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* 필터 버튼 */
+.filter-box {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  background: #e9ecef;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-btn.active {
+  background: #ff9800;
+  color: white;
+  font-weight: bold;
+}
+
+/* 선수 카드 리스트 */
+.player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-card {
+  display: flex;
   padding: 10px;
-  background: #ddd;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-img {
+  width: 55px;
+  height: 55px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.player-info {
+  flex: 1;
+}
+
+.player-name {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.player-pos {
+  font-size: 13px;
+  color: #666;
+}
+
+.player-stats {
+  margin-top: 4px;
+  font-size: 12px;
+  display: flex;
+  gap: 10px;
+  color: #444;
+}
+
+/* 별 표시 스타일 */
+.star-box {
+  color: #ffbf00;
+  font-weight: bold;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* 반응형 */
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .player-card {
+    padding: 8px;
+  }
 }
