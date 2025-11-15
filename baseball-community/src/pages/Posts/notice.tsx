@@ -19,7 +19,7 @@ export default function NoticeDetail() {
 
   const fetchNotice = async () => {
     try {
-      const res = await axios.get(`/api/notices/${id}`, { withCredentials: true });
+      const res: any = await axios.get(`/api/notices/${id}`, { withCredentials: true });
       setNotice(res.data);
     } catch (err) {
       console.error("공지 불러오기 실패:", err);

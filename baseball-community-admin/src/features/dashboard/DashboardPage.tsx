@@ -20,14 +20,26 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
 useEffect(() => {
-  axios.get<DashboardResponse>("/api/admin/dashboards", { withCredentials: true })
-    .then((res) => {
+  const fetchDashboard = async () => {
+    setLoading(true);
+    try {
+      const res: any = await axios.get("/api/admin/dashboards", {
+        withCredentials: true,
+      });
+
       console.log("📡 Dashboard API 응답:", res.data);
       setData(res.data);
-    })
-    .catch((err) => console.error("대시보드 데이터 불러오기 실패:", err))
-    .finally(() => setLoading(false));
+
+    } catch (err) {
+      console.error("대시보드 데이터 불러오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
 }, []);
+
 
   if (loading)
     return (

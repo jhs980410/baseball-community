@@ -2,20 +2,55 @@ import React, { useEffect, useState } from "react";
 import { Table, Tag, Space, Button, message, Modal, Descriptions } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import type { Post } from "../../types/post";
+
+// 🔹 이 파일에서만 사용할 Admin 전용 타입 (백엔드 JSON 형태에 맞게 카멜케이스)
+type AdminPostStatus = {
+  flagged: boolean;
+  lastFlagReason?: string | null;
+};
+
+type AdminPost = {
+  id: number;
+  userId: number;   // 작성자 ID
+  teamId: number;   // 팀 ID
+  title: string;
+  content: string;
+  isHidden: boolean;           // 숨김 여부
+  status?: AdminPostStatus;    // 관리자용 상태 정보 (플래그 등)
+};
 
 const PostsPage: React.FC = () => {
-  const [data, setData] = useState<Post[]>([]);
+  const [data, setData] = useState<AdminPost[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [selectedPost, setSelectedPost] = useState<AdminPost | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   /** 게시글 목록 불러오기 */
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/api/admin/posts", { withCredentials: true });
-      setData(response.data.content);
+      // 🔥 응답 타입을 any로 강제 → res.data.content 타입 에러 방지
+      const response: any = await axios.get("/api/admin/posts", {
+        withCredentials: true,
+      });
+
+      // 서버에서 content 배열이 케이스 섞여서 올 수도 있으니 안전하게 매핑
+      const list: AdminPost[] = (response.data.content || []).map((p: any) => ({
+        id: p.id,
+        userId: p.userId ?? p.user_id,
+        teamId: p.teamId ?? p.team_id,
+        title: p.title,
+        content: p.content,
+        isHidden: p.isHidden ?? p.is_hidden ?? false,
+        status: p.status
+          ? {
+              flagged: p.status.flagged ?? false,
+              lastFlagReason: p.status.lastFlagReason ?? p.status.last_flag_reason ?? null,
+            }
+          : undefined,
+      }));
+
+      setData(list);
     } catch (err) {
       message.error("게시글을 불러오는 중 오류가 발생했습니다.");
       console.error(err);
@@ -27,8 +62,27 @@ const PostsPage: React.FC = () => {
   /** 단건 조회 (보기 클릭 시) */
   const handleView = async (id: number) => {
     try {
-      const res = await axios.get(`/api/admin/posts/${id}`, { withCredentials: true });
-      setSelectedPost(res.data);
+      const res: any = await axios.get(`/api/admin/posts/${id}`, {
+        withCredentials: true,
+      });
+
+      const p = res.data;
+      const detail: AdminPost = {
+        id: p.id,
+        userId: p.userId ?? p.user_id,
+        teamId: p.teamId ?? p.team_id,
+        title: p.title,
+        content: p.content,
+        isHidden: p.isHidden ?? p.is_hidden ?? false,
+        status: p.status
+          ? {
+              flagged: p.status.flagged ?? false,
+              lastFlagReason: p.status.lastFlagReason ?? p.status.last_flag_reason ?? null,
+            }
+          : undefined,
+      };
+
+      setSelectedPost(detail);
       setIsModalOpen(true);
     } catch (err) {
       message.error("게시글 상세 정보를 불러오지 못했습니다.");
@@ -51,7 +105,11 @@ const PostsPage: React.FC = () => {
   /** 복구 처리 (PATCH) */
   const handleRestore = async (id: number) => {
     try {
-      await axios.patch(`/api/admin/posts/${id}/restore`, {}, { withCredentials: true });
+      await axios.patch(
+        `/api/admin/posts/${id}/restore`,
+        {},
+        { withCredentials: true }
+      );
       message.success("게시글이 복구되었습니다.");
       fetchPosts();
     } catch (err) {
@@ -65,7 +123,7 @@ const PostsPage: React.FC = () => {
   }, []);
 
   /** 테이블 컬럼 정의 */
-  const columns: ColumnsType<Post> = [
+  const columns: ColumnsType<AdminPost> = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "작성자 ID", dataIndex: "userId", key: "userId" },
     { title: "팀", dataIndex: "teamId", key: "teamId" },
@@ -81,8 +139,12 @@ const PostsPage: React.FC = () => {
       title: "플래그",
       dataIndex: ["status", "flagged"],
       key: "flagged",
-      render: (flagged: boolean) =>
-        flagged ? <Tag color="volcano">플래그됨</Tag> : <Tag color="blue">정상</Tag>,
+      render: (flagged: boolean | undefined) =>
+        flagged ? (
+          <Tag color="volcano">플래그됨</Tag>
+        ) : (
+          <Tag color="blue">정상</Tag>
+        ),
     },
     {
       title: "액션",
@@ -109,7 +171,7 @@ const PostsPage: React.FC = () => {
   return (
     <div>
       <h2>📝 게시글 관리</h2>
-      <Table<Post>
+      <Table<AdminPost>
         columns={columns}
         dataSource={data}
         loading={loading}
@@ -131,9 +193,15 @@ const PostsPage: React.FC = () => {
       >
         {selectedPost ? (
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="작성자 ID">{selectedPost.userId}</Descriptions.Item>
-            <Descriptions.Item label="팀">{selectedPost.teamId}</Descriptions.Item>
-            <Descriptions.Item label="제목">{selectedPost.title}</Descriptions.Item>
+            <Descriptions.Item label="작성자 ID">
+              {selectedPost.userId}
+            </Descriptions.Item>
+            <Descriptions.Item label="팀">
+              {selectedPost.teamId}
+            </Descriptions.Item>
+            <Descriptions.Item label="제목">
+              {selectedPost.title}
+            </Descriptions.Item>
             <Descriptions.Item label="내용">
               <div
                 dangerouslySetInnerHTML={{ __html: selectedPost.content }}

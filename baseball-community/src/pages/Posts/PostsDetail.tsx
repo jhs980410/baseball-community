@@ -45,20 +45,24 @@ export default function PostDetail() {
   const navigate = useNavigate();
 
   // 게시글 + 댓글 불러오기
-  const fetchPost = async () => {
-    if (!postId) return;
-    try {
-      const res = await axios.get(`/api/posts/${postId}`, {
-        withCredentials: true,
-      });
-      const data = res.data;
-      setPost(data);
-      setLikeCount(data.likeCount);
-      setLiked(data.likedByCurrentUser);
-    } catch (err) {
-      console.error("게시글 불러오기 실패:", err);
-    }
-  };
+const fetchPost = async () => {
+  if (!postId) return;
+
+  try {
+    const res: any = await axios.get(`/api/posts/${postId}`, {
+      withCredentials: true,
+    });
+
+    const data: any = res.data;
+
+    setPost(data);
+    setLikeCount(data.likeCount);
+    setLiked(data.likedByCurrentUser);
+  } catch (err) {
+    console.error("게시글 불러오기 실패:", err);
+  }
+};
+
 
 
   
@@ -93,16 +97,17 @@ const handleDeletePosts = async (postId: number) => {
       return;
     }
     try {
-      const res = await axios.post(
-        `/api/likes/${postId}/toggle`,
-        {},
-        { withCredentials: true }
-      );
-      setLiked(res.data.likedByCurrentUser);
-      setLikeCount(res.data.likeCount);
-    } catch (err) {
-      console.error("좋아요 처리 실패", err);
-    }
+  const res: any = await axios.post(
+    `/api/likes/${postId}/toggle`,
+    {},
+    { withCredentials: true }
+  );
+
+  setLiked(res.data.likedByCurrentUser);
+  setLikeCount(res.data.likeCount);
+} catch (err) {
+  console.error("좋아요 처리 실패", err);
+}
   };
   
   // 댓글 수정

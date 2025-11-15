@@ -30,28 +30,28 @@ const NoticesPage: React.FC = () => {
 const fetchNotices = async () => {
   setLoading(true);
   try {
-    const res = await axios.get("/api/admin/notices", { withCredentials: true });
+    const res: any = await axios.get("/api/admin/notices", {
+      withCredentials: true
+    });
 
-    const mapped = res.data.map((n: any) => ({
+    const mapped = (res.data || []).map((n: any) => ({
       id: n.id,
       title: n.title,
       content: n.content,
-      is_pinned: n.pinned,
-      created_at: formatDate(n.createdAt),
-      updated_at: formatDate(n.updatedAt),
+      is_pinned: n.is_pinned ?? n.pinned, // 둘 다 대응
+      created_at: formatDate(n.created_at ?? n.createdAt),
+      updated_at: formatDate(n.updated_at ?? n.updatedAt),
     }));
 
     setData(mapped);
-  } catch {
+  } catch (err) {
+    console.error("공지 불러오기 실패:", err);
     message.error("공지 목록 불러오기 실패");
+  } finally {
+    setLoading(false);
   }
-  setLoading(false);
 };
 
-
-  useEffect(() => {
-    fetchNotices();
-  }, []);
 
   // --------------------------------------------------------
   // 📌 새 공지 작성 Modal

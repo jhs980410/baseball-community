@@ -53,52 +53,52 @@ export default function Posts({ teamId, searchType, keyword }: PostsProps) {
   // ---------------------------
   // 데이터 불러오기
   // ---------------------------
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 🔥 공지사항 탭 (전체 공지 리스트)
-        if (tab === "notice") {
-          const res = await axios.get("/api/notices", {
-            params: { page, size: 10 },
-          });
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // 🔥 공지사항 탭 (전체 공지 리스트)
+      if (tab === "notice") {
+        const res: any = await axios.get("/api/notices", {
+          params: { page, size: 10 },
+        });
 
-          setNotices(res.data.content);
-          setTotalPages(res.data.totalPages);
-          setPosts([]);
-          return;
-        }
-
-        // 🔥 일반 탭 — 상단 고정 공지 2개
-        const topNoticeRes = await axios.get("/api/notices/top");
-        setNotices(topNoticeRes.data);
-
-        // 🔥 게시글 URL 생성
-        let url = "";
-        if (tab === "hot") {
-          url =
-            teamId && teamId !== "all"
-              ? `/api/posts/teams/${teamId}/hot?page=${page}&size=10`
-              : `/api/posts/hot?page=${page}&size=10`;
-        } else {
-          if (keyword && searchType) {
-            url = `/api/posts?type=${searchType}&keyword=${keyword}&page=${page}&size=10`;
-          } else if (teamId && teamId !== "all") {
-            url = `/api/posts/teams/${teamId}?page=${page}&size=10`;
-          } else {
-            url = `/api/posts?page=${page}&size=10`;
-          }
-        }
-
-        const res = await axios.get(url, { withCredentials: true });
-        setPosts(res.data.content);
+        setNotices(res.data.content);
         setTotalPages(res.data.totalPages);
-      } catch (err) {
-        console.error("게시글/공지 로딩 실패:", err);
+        setPosts([]);
+        return;
       }
-    };
 
-    fetchData();
-  }, [teamId, searchType, keyword, page, tab]);
+      // 🔥 일반 탭 — 상단 고정 공지 2개
+      const topNoticeRes: any = await axios.get("/api/notices/top");
+      setNotices(topNoticeRes.data);
+
+      // 🔥 게시글 URL 생성
+      let url = "";
+      if (tab === "hot") {
+        url =
+          teamId && teamId !== "all"
+            ? `/api/posts/teams/${teamId}/hot?page=${page}&size=10`
+            : `/api/posts/hot?page=${page}&size=10`;
+      } else {
+        if (keyword && searchType) {
+          url = `/api/posts?type=${searchType}&keyword=${keyword}&page=${page}&size=10`;
+        } else if (teamId && teamId !== "all") {
+          url = `/api/posts/teams/${teamId}?page=${page}&size=10`;
+        } else {
+          url = `/api/posts?page=${page}&size=10`;
+        }
+      }
+
+      const res: any = await axios.get(url, { withCredentials: true });
+      setPosts(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error("게시글/공지 로딩 실패:", err);
+    }
+  };
+
+  fetchData();
+}, [teamId, searchType, keyword, page, tab]);
 
   // ---------------------------
   // 팀명 표시

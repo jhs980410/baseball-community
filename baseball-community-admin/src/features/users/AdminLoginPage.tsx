@@ -3,41 +3,50 @@ import { Card, Form, Input, Button, message } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+interface AdminLoginResponse {
+  role: "ADMIN" | "SUPER_ADMIN";
+  email: string;
+  nickname: string;
+}
+
 const AdminLoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 로그인 처리 함수
+  /** 🔐 관리자 로그인 */
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
+
     try {
-      // 백엔드 컨트롤러 경로: /api/admin/auth/login
-      const res = await axios.post("/api/admin/auth/login", values, {
-        withCredentials: true, // HttpOnly 쿠키로 JWT 수신
-      });
+      const res = await axios.post<AdminLoginResponse>(
+        "/api/admin/auth/login",
+        values,
+        { withCredentials: true }
+      );
 
-          if (res.status === 200) {
-      message.success("✅ 관리자 로그인 성공");
-      console.log("관리자 로그인 성공:", res.data);
-
-      //  role 저장
-      if (res.data.role) {
-        localStorage.setItem("role", res.data.role);
-        localStorage.setItem("email", res.data.email);
-        localStorage.setItem("nickname", res.data.nickname);
-        console.log("저장된 관리자 권한:", res.data.role);
+      if (!res.data) {
+        message.error("서버에서 로그인 정보를 받지 못했습니다.");
+        return;
       }
 
-      //  navigate 전에 약간의 시간 차 줌
+      const { role, email, nickname } = res.data;
+
+      message.success("✅ 관리자 로그인 성공");
+
+      // localStorage 저장
+      localStorage.setItem("role", role);
+      localStorage.setItem("email", email);
+      localStorage.setItem("nickname", nickname);
+
+      console.log("저장된 관리자 정보:", role, email, nickname);
+
+      // 짧은 지연 후 페이지 이동
       setTimeout(() => {
         navigate("/admin/dashboard", { replace: true });
       }, 100);
-    } else {
-        message.error("로그인 실패: 서버 응답이 올바르지 않습니다.");
-      }
     } catch (err: any) {
       console.error("관리자 로그인 실패:", err);
-      message.error("이메일 또는 비밀번호를 확인하세요.");
+      message.error("❌ 이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +76,7 @@ const AdminLoginPage: React.FC = () => {
             name="email"
             rules={[
               { required: true, message: "이메일을 입력하세요." },
-              { type: "email", message: "유효한 이메일 주소가 아닙니다." },
+              { type: "email", message: "유효한 이메일 형식이 아닙니다." },
             ]}
           >
             <Input placeholder="admin@example.com" />

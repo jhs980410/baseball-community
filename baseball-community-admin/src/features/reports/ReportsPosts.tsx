@@ -10,12 +10,26 @@ const ReportsPosts: React.FC = () => {
   const [actionModal, setActionModal] = useState<{ open: boolean; id?: number }>({ open: false });
   const [selectedAction, setSelectedAction] = useState<string>("");
 
-  // 🚀 신고 데이터 가져오기
+  /** 🚀 게시글 신고 목록 불러오기 */
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/admin/reports/posts", { withCredentials: true });
-      setData(res.data);
+      const res: any = await axios.get("/api/admin/reports/posts", {
+        withCredentials: true,
+      });
+
+      // 🔥 res.data 를 Report[] 형태로 확실하게 변환
+      const list: Report[] = (Array.isArray(res.data) ? res.data : []).map((r: any) => ({
+        id: r.id,
+        target_type: r.target_type,
+        target_id: r.target_id,
+        user_id: r.user_id,
+        reason: r.reason,
+        status: r.status,
+        created_at: r.created_at,
+      }));
+
+      setData(list);
     } catch (err) {
       console.error(err);
       message.error("게시글 신고 목록을 불러오지 못했습니다.");
@@ -28,10 +42,9 @@ const ReportsPosts: React.FC = () => {
     fetchReports();
   }, []);
 
-  // 🎨 상태별 색상
+  /** 🎨 상태 색상 */
   const statusColor = (status: string) => {
-    const s = status.toLowerCase();
-    switch (s) {
+    switch (status.toLowerCase()) {
       case "pending":
         return "red";
       case "reviewed":
@@ -43,7 +56,7 @@ const ReportsPosts: React.FC = () => {
     }
   };
 
-  // ✅ 조치 실행
+  /** 🔧 신고 조치 실행 */
   const handleAction = async () => {
     if (!actionModal.id || !selectedAction) {
       message.warning("조치 내용을 선택하세요.");
@@ -56,21 +69,30 @@ const ReportsPosts: React.FC = () => {
         { action: selectedAction, adminNote: "관리자 게시글 조치" },
         { withCredentials: true }
       );
+
       message.success("조치가 완료되었습니다.");
       setActionModal({ open: false });
       setSelectedAction("");
       fetchReports();
     } catch (err) {
       console.error(err);
-      message.error("조치 처리 중 오류가 발생했습니다.");
+      message.error("조치 처리 중 오류 발생");
     }
   };
 
-  // 📋 테이블 컬럼 정의
+  /** 테이블 컬럼 정의 — snake_case → camelCase 변환 */
   const columns: ColumnsType<Report> = [
     { title: "ID", dataIndex: "id", key: "id", width: 60 },
-    { title: "게시글 ID", dataIndex: "targetId", key: "targetId" },
-    { title: "신고자 ID", dataIndex: "reporterId", key: "reporterId" },
+    {
+      title: "게시글 ID",
+      dataIndex: "target_id",
+      key: "target_id",
+    },
+    {
+      title: "신고자 ID",
+      dataIndex: "user_id",
+      key: "user_id",
+    },
     {
       title: "사유",
       dataIndex: "reason",
@@ -83,13 +105,17 @@ const ReportsPosts: React.FC = () => {
       key: "status",
       render: (status) => <Tag color={statusColor(status)}>{status}</Tag>,
     },
-    { title: "신고일", dataIndex: "createdAt", key: "createdAt" },
+    {
+      title: "신고일",
+      dataIndex: "created_at",
+      key: "created_at",
+    },
     {
       title: "액션",
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => handleViewPost(record.targetId)}>
+          <Button type="link" onClick={() => handleViewPost(record.target_id)}>
             보기
           </Button>
           <Button type="link" onClick={() => setActionModal({ open: true, id: record.id })}>
@@ -103,12 +129,12 @@ const ReportsPosts: React.FC = () => {
     },
   ];
 
-  // 🔍 게시글 보기 (추후 상세 페이지 연결 예정)
+  /** 게시글 보기 (추후 페이지 연결) */
   const handleViewPost = (postId: number) => {
     message.info(`(미구현) 게시글 ${postId} 보기`);
   };
 
-  // 🗑️ 신고 삭제
+  /** 신고 삭제 */
   const handleDeleteReport = async (id: number) => {
     try {
       await axios.delete(`/api/admin/reports/${id}`, { withCredentials: true });
@@ -126,8 +152,8 @@ const ReportsPosts: React.FC = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
-        pagination={{ pageSize: 10 }}
         loading={loading}
+        pagination={{ pageSize: 10 }}
       />
 
       {/* 조치 모달 */}
@@ -143,8 +169,8 @@ const ReportsPosts: React.FC = () => {
         <Select
           style={{ width: "100%" }}
           placeholder="조치 선택"
-          onChange={setSelectedAction}
           value={selectedAction}
+          onChange={(v) => setSelectedAction(v)}
           options={[
             { label: "게시글 숨김", value: "HIDE_POST" },
             { label: "게시글 삭제", value: "DELETE_POST" },

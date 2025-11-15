@@ -27,6 +27,7 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequestDto dto) {
+        System.out.println("회원가입시작");
         authService.signup(dto);
         return ResponseEntity.ok("회원가입 성공");
     }

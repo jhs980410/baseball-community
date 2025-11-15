@@ -7,15 +7,31 @@ import type { Report } from "../../types/report";
 const ReportsComments: React.FC = () => {
   const [data, setData] = useState<Report[]>([]);
   const [loading, setLoading] = useState(false);
-  const [actionModal, setActionModal] = useState<{ open: boolean; id?: number }>({ open: false });
+  const [actionModal, setActionModal] = useState<{ open: boolean; id?: number }>({
+    open: false,
+  });
   const [selectedAction, setSelectedAction] = useState<string>("");
 
-  // 🚀 댓글 신고 목록 조회
+  /** 🚀 댓글 신고 목록 조회 */
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/admin/reports/comments", { withCredentials: true });
-      setData(res.data);
+      const res = await axios.get<Report[]>("/api/admin/reports/comments", {
+        withCredentials: true,
+      });
+
+      // 🔥 백엔드 snake_case → camelCase 맞춰 변환
+      const mapped: Report[] = res.data.map((r: any) => ({
+        id: r.id,
+        target_type: r.target_type,
+        target_id: r.target_id, // 댓글 ID
+        user_id: r.user_id, // 신고자 ID
+        reason: r.reason,
+        status: r.status,
+        created_at: r.created_at,
+      }));
+
+      setData(mapped);
     } catch (err) {
       console.error(err);
       message.error("댓글 신고 목록을 불러오지 못했습니다.");
@@ -28,10 +44,9 @@ const ReportsComments: React.FC = () => {
     fetchReports();
   }, []);
 
-  // 🎨 상태 컬러
+  /** 🎨 상태 컬러 */
   const statusColor = (status: string) => {
-    const s = status.toLowerCase();
-    switch (s) {
+    switch (status.toLowerCase()) {
       case "pending":
         return "red";
       case "reviewed":
@@ -43,7 +58,7 @@ const ReportsComments: React.FC = () => {
     }
   };
 
-  // ✅ 조치 요청 (PATCH)
+  /** ⚙️ 조치 실행 */
   const handleAction = async () => {
     if (!actionModal.id || !selectedAction) {
       message.warning("조치 내용을 선택하세요.");
@@ -56,6 +71,7 @@ const ReportsComments: React.FC = () => {
         { action: selectedAction, adminNote: "관리자 조치" },
         { withCredentials: true }
       );
+
       message.success("조치가 완료되었습니다.");
       setActionModal({ open: false });
       setSelectedAction("");
@@ -66,11 +82,11 @@ const ReportsComments: React.FC = () => {
     }
   };
 
-  // 📋 테이블 컬럼 정의
+  /** 📋 테이블 컬럼 정의 */
   const columns: ColumnsType<Report> = [
     { title: "ID", dataIndex: "id", key: "id" },
-    { title: "댓글 ID", dataIndex: "targetId", key: "targetId" },
-    { title: "신고자 ID", dataIndex: "reporterId", key: "reporterId" },
+    { title: "댓글 ID", dataIndex: "target_id", key: "target_id" },
+    { title: "신고자 ID", dataIndex: "user_id", key: "user_id" },
     {
       title: "사유",
       dataIndex: "reason",
@@ -83,13 +99,17 @@ const ReportsComments: React.FC = () => {
       key: "status",
       render: (status) => <Tag color={statusColor(status)}>{status}</Tag>,
     },
-    { title: "신고일", dataIndex: "createdAt", key: "createdAt" },
+    {
+      title: "신고일",
+      dataIndex: "created_at",
+      key: "created_at",
+    },
     {
       title: "액션",
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => handleViewComment(record.targetId)}>
+          <Button type="link" onClick={() => handleViewComment(record.target_id)}>
             보기
           </Button>
           <Button type="link" onClick={() => setActionModal({ open: true, id: record.id })}>
@@ -100,7 +120,7 @@ const ReportsComments: React.FC = () => {
     },
   ];
 
-  // 🔍 댓글 보기 (미구현)
+  /** 🔍 댓글 보기 (미구현) */
   const handleViewComment = (commentId: number) => {
     message.info(`(미구현) 댓글 ${commentId} 보기`);
   };
@@ -128,8 +148,8 @@ const ReportsComments: React.FC = () => {
         <Select
           style={{ width: "100%" }}
           placeholder="조치 선택"
-          onChange={setSelectedAction}
           value={selectedAction}
+          onChange={setSelectedAction}
           options={[
             { label: "댓글 숨김", value: "HIDE_COMMENT" },
             { label: "댓글 삭제", value: "DELETE_COMMENT" },

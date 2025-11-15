@@ -18,22 +18,51 @@ interface UserDetail extends User {
   reportCount: number;
   postCount: number;
   commentCount: number;
+  created_at: string;
+}
+
+interface UserCamelCase {
+  id: number;
+  email: string;
+  nickname: string;
+  role: string;
+  status: string;
+  createdAt: string;
 }
 
 const UsersPage: React.FC = () => {
-  const [data, setData] = useState<User[]>([]);
+  const [data, setData] = useState<UserCamelCase[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  /** 🔹 회원 목록 불러오기 */
+  /** snake_case → camelCase 변환 */
+  const convertToCamel = (u: any): UserCamelCase => ({
+    id: u.id,
+    email: u.email,
+    nickname: u.nickname,
+    role: u.role,
+    status: u.status,
+    createdAt: u.created_at,
+  });
+
+  /** 회원 목록 불러오기 */
   const fetchUsers = async (nickname?: string) => {
     setLoading(true);
     try {
       const res = await axios.get("/api/admin/users", {
-        params: nickname ? { nickname } : {}, // ✅ 닉네임 검색
+        params: nickname ? { nickname } : {},
         withCredentials: true,
       });
-      const users = res.data.content || res.data;
+
+      // 🔥 핵심 수정 - res.data를 any로 선언
+      const responseData = res.data as any;
+
+      const raw = Array.isArray(responseData?.content)
+        ? responseData.content
+        : responseData;
+
+      const users = raw.map((u: any) => convertToCamel(u));
+
       setData(users);
     } catch (err) {
       console.error("회원 목록 불러오기 실패:", err);
@@ -47,68 +76,73 @@ const UsersPage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  /** 🔹 닉네임 검색 */
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     fetchUsers(value);
   };
 
-  /** 🔹 상세 조회 */
   const handleView = async (id: number) => {
     try {
-      const res = await axios.get(`/api/admin/users/${id}`, { withCredentials: true });
-      const user = res.data as UserDetail;
+      const res = await axios.get(`/api/admin/users/${id}`, {
+        withCredentials: true,
+      });
+
+      const u = res.data as UserDetail;
 
       Modal.info({
         title: `👤 사용자 #${id} 상세 정보`,
         width: 550,
         content: (
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="이메일">{user.email}</Descriptions.Item>
-            <Descriptions.Item label="닉네임">{user.nickname}</Descriptions.Item>
+            <Descriptions.Item label="이메일">{u.email}</Descriptions.Item>
+            <Descriptions.Item label="닉네임">{u.nickname}</Descriptions.Item>
             <Descriptions.Item label="권한">
               <Tag
                 color={
-                  user.role === "ADMIN"
+                  u.role === "ADMIN"
                     ? "red"
-                    : user.role === "MODERATOR"
+                    : u.role === "MODERATOR"
                     ? "blue"
                     : "green"
                 }
               >
-                {user.role}
+                {u.role}
               </Tag>
             </Descriptions.Item>
+
             <Descriptions.Item label="상태">
               <Tag
                 color={
-                  user.status === "ACTIVE"
+                  u.status === "ACTIVE"
                     ? "green"
-                    : user.status === "SUSPENDED"
+                    : u.status === "SUSPENDED"
                     ? "orange"
                     : "gray"
                 }
               >
-                {user.status}
+                {u.status}
               </Tag>
             </Descriptions.Item>
+
             <Descriptions.Item label="신고 횟수">
               <Tag
                 color={
-                  user.reportCount >= 3
+                  u.reportCount >= 3
                     ? "red"
-                    : user.reportCount > 0
+                    : u.reportCount > 0
                     ? "orange"
                     : "default"
                 }
               >
-                {user.reportCount}회
+                {u.reportCount}회
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="작성 글 수">{user.postCount}개</Descriptions.Item>
-            <Descriptions.Item label="작성 댓글 수">{user.commentCount}개</Descriptions.Item>
+
+            <Descriptions.Item label="작성 글 수">{u.postCount}개</Descriptions.Item>
+            <Descriptions.Item label="작성 댓글 수">{u.commentCount}개</Descriptions.Item>
+
             <Descriptions.Item label="가입일">
-              {new Date(user.createdAt).toLocaleString()}
+              {new Date(u.created_at).toLocaleString()}
             </Descriptions.Item>
           </Descriptions>
         ),
@@ -119,27 +153,20 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  /** 🔹 회원 정지 (사유+기간 선택) */
   const handleSuspend = (id: number) => {
     let reason = "";
-    let duration = 24; // 기본 24시간
+    let duration = 24;
 
     Modal.confirm({
       title: "⚠️ 회원 정지 설정",
       width: 450,
       content: (
         <div>
-          <p>정지 사유를 입력하세요:</p>
-          <Input
-            placeholder="예: 비속어 사용, 도배 행위 등"
-            onChange={(e) => (reason = e.target.value)}
-          />
+          <p>정지 사유 입력:</p>
+          <Input placeholder="예: 비속어 사용" onChange={(e) => (reason = e.target.value)} />
+
           <p style={{ marginTop: 10 }}>정지 기간 선택:</p>
-          <Select
-            defaultValue="24"
-            onChange={(v) => (duration = Number(v))}
-            style={{ width: "100%" }}
-          >
+          <Select defaultValue="24" onChange={(v) => (duration = Number(v))} style={{ width: "100%" }}>
             <Select.Option value="1">1시간</Select.Option>
             <Select.Option value="6">6시간</Select.Option>
             <Select.Option value="24">1일</Select.Option>
@@ -162,13 +189,12 @@ const UsersPage: React.FC = () => {
           fetchUsers(searchTerm);
         } catch (err) {
           console.error("정지 실패:", err);
-          message.error("회원 정지 처리에 실패했습니다.");
+          message.error("회원 정지 실패");
         }
       },
     });
   };
 
-  /** 🔹 복구 */
   const handleUnsuspend = async (id: number) => {
     try {
       await axios.patch(`/api/admin/users/${id}/unsuspend`, null, {
@@ -178,11 +204,11 @@ const UsersPage: React.FC = () => {
       fetchUsers(searchTerm);
     } catch (err) {
       console.error("복구 실패:", err);
-      message.error("회원 복구에 실패했습니다.");
+      message.error("회원 복구 실패");
     }
   };
 
-  const columns: ColumnsType<User> = [
+  const columns: ColumnsType<UserCamelCase> = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "이메일", dataIndex: "email", key: "email" },
     { title: "닉네임", dataIndex: "nickname", key: "nickname" },
@@ -190,7 +216,7 @@ const UsersPage: React.FC = () => {
       title: "권한",
       dataIndex: "role",
       key: "role",
-      render: (role: string) => (
+      render: (role) => (
         <Tag color={role === "ADMIN" ? "red" : role === "MODERATOR" ? "blue" : "green"}>
           {role}
         </Tag>
@@ -200,7 +226,7 @@ const UsersPage: React.FC = () => {
       title: "상태",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
+      render: (status) => (
         <Tag color={status === "ACTIVE" ? "green" : status === "SUSPENDED" ? "orange" : "gray"}>
           {status}
         </Tag>
@@ -239,9 +265,8 @@ const UsersPage: React.FC = () => {
     <div>
       <h2>👥 회원 관리</h2>
 
-      {/* 🔍 닉네임 검색창 */}
       <Input.Search
-        placeholder="닉네임으로 검색"
+        placeholder="닉네임 검색"
         allowClear
         enterButton="검색"
         size="large"
@@ -249,7 +274,7 @@ const UsersPage: React.FC = () => {
         onSearch={handleSearch}
       />
 
-      <Table<User>
+      <Table<UserCamelCase>
         columns={columns}
         dataSource={data}
         rowKey="id"

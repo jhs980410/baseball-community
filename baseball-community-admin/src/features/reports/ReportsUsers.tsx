@@ -11,18 +11,31 @@ const ReportsUsers: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<string>("");
 
   // 🚀 데이터 로딩
-  const fetchReports = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("/api/admin/reports/users", { withCredentials: true });
-      setData(res.data);
-    } catch (err) {
-      console.error(err);
-      message.error("사용자 신고 목록을 불러오지 못했습니다.");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchReports = async () => {
+  setLoading(true);
+  try {
+    const res: any = await axios.get("/api/admin/reports/users", { withCredentials: true });
+
+    // 응답이 배열인지 확인 후 snake_case에 맞게 변환
+    const list: Report[] = (Array.isArray(res.data) ? res.data : []).map((r: any) => ({
+      id: r.id,
+      target_type: r.target_type,
+      target_id: r.target_id,
+      user_id: r.user_id,
+      reason: r.reason,
+      status: r.status,
+      created_at: r.created_at,
+    }));
+
+    setData(list);
+  } catch (err) {
+    console.error(err);
+    message.error("사용자 신고 목록을 불러오지 못했습니다.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchReports();

@@ -23,11 +23,11 @@ const { postId } = useParams<{ postId: string }>();
       return;
     }
 console.log(postId+"이거널?");
-    axios.get(`/api/posts/${postId}`).then((res) => {
-      setTitle(res.data.title);
-      setContent(res.data.content);
-      setTeamId(String(res.data.teamId));;
-    });
+   axios.get(`/api/posts/${postId}`).then((res: any) => {
+  setTitle(res.data.title);
+  setContent(res.data.content);
+  setTeamId(String(res.data.teamId));
+});
   }, [userInfo, navigate, postId]);
 
   const handleSubmit = async () => {

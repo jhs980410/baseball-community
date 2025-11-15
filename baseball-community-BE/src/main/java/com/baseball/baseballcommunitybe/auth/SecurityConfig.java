@@ -31,40 +31,62 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
+
+                    config.setAllowedOriginPatterns(List.of(
+                            "http://localhost:*",
+                            "http://baseballjhs.o-r.kr",
+                            "http://baseballjhs.o-r.kr:*",
+                            "http://baseballjhs.kro.kr",
+                            "http://baseballjhs.kro.kr:*",
+                            "https://baseballjhs.o-r.kr",
+                            "https://baseballjhs.o-r.kr:*",
+                            "https://baseballjhs.kro.kr",
+                            "https://baseballjhs.kro.kr:*"
+                    ));
+
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
+
                     return config;
                 }))
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // 공용
+
+                        // ★ OPTIONS(PREFLIGHT) 완전 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ★ Auth 관련 (Signup/Login)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // ★ GET 공용 API
                         .requestMatchers(HttpMethod.GET, "/api/users/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
-                        // 관리자 로그인 (별도 허용)
+                        // ★ 관리자 로그인
                         .requestMatchers("/api/admin/auth/**").permitAll()
 
-                        // 총관리자 전용
+                        // SUPER ADMIN
                         .requestMatchers("/api/super/**").hasRole("SUPER_ADMIN")
 
-                        // 관리자 전용
+                        // ADMIN
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
 
-                        // 일반 사용자
+                        // USER
                         .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
 
-                        // 인증 필요한 영역
+                        // ★ 인증 필요한 일반 API
                         .requestMatchers("/api/posts/**").authenticated()
                         .requestMatchers("/api/comments/**").authenticated()
                         .requestMatchers("/api/likes/**").authenticated()
                         .requestMatchers("/api/reports/**").authenticated()
 
+                        // 나머지는 인증
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
@@ -72,6 +94,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

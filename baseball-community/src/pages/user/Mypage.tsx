@@ -21,6 +21,7 @@ interface Comment {
   date: string;
   postId: number;
   postTitle: string;
+  edited?: boolean;
 }
 
 interface Like {
@@ -52,7 +53,7 @@ export default function Mypage() {
   // 로딩 상태
   const [loading, setLoading] = useState(false);
 
-  // ---------------- 프로필 수정 관련 ----------------
+  // 프로필 수정 관련
   const [verified, setVerified] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newNickname, setNewNickname] = useState("");
@@ -62,12 +63,12 @@ export default function Mypage() {
   // 좋아요 토글
   const handleToggleLike = async (postId: number) => {
     try {
-      const res = await axios.post(
+      const res: any = await axios.post(
         `/api/likes/${postId}/toggle`,
         {},
         { withCredentials: true }
       );
-      const data = res.data;
+      const data: any = res.data;
       if (!data.likedByCurrentUser) {
         setLikes((prev) => prev.filter((p) => p.postId !== postId));
       }
@@ -84,7 +85,7 @@ export default function Mypage() {
 
       try {
         if (activeTab === "posts") {
-          const res = await axios.get(
+          const res: any = await axios.get(
             `/api/posts/me?page=${postPage}&size=10`,
             { withCredentials: true }
           );
@@ -93,7 +94,7 @@ export default function Mypage() {
         }
 
         if (activeTab === "comments") {
-          const res = await axios.get(
+          const res: any = await axios.get(
             `/api/comments/me?page=${commentPage}&size=10`,
             { withCredentials: true }
           );
@@ -102,7 +103,7 @@ export default function Mypage() {
         }
 
         if (activeTab === "likes") {
-          const res = await axios.get(
+          const res: any = await axios.get(
             `/api/likes/me?page=${likePage}&size=10`,
             { withCredentials: true }
           );
@@ -119,7 +120,7 @@ export default function Mypage() {
     fetchData();
   }, [activeTab, postPage, commentPage, likePage, userInfo]);
 
-  // ---------------- 이벤트 핸들러 ----------------
+  // 비밀번호 검증
   const handleVerifyPassword = async () => {
     try {
       await axios.post(
@@ -134,9 +135,10 @@ export default function Mypage() {
     }
   };
 
+  // 닉네임 체크
   const handleCheckNickname = async () => {
     try {
-      const res = await axios.get(
+      const res: any = await axios.get(
         `/api/users/check-nickname?nickname=${newNickname}`,
         { withCredentials: true }
       );
@@ -150,6 +152,7 @@ export default function Mypage() {
     }
   };
 
+  // 프로필 저장
   const handleSaveProfile = async () => {
     if (newPassword && newPassword !== confirmPassword) {
       alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
@@ -187,7 +190,6 @@ export default function Mypage() {
 
   return (
     <div className="mypage">
-      {/* 사이드바 */}
       <aside className="mypage-sidebar">
         <div className="profile">
           <div className="avatar">👤</div>
@@ -214,11 +216,9 @@ export default function Mypage() {
         </ul>
       </aside>
 
-      {/* 콘텐츠 */}
       <section className="mypage-content">
         {loading && <p>로딩 중...</p>}
 
-        {/* 내가 쓴 글 */}
         {activeTab === "posts" && !loading && (
           <div>
             <h3 className="mypagetitle">내가 쓴 글</h3>
@@ -239,37 +239,30 @@ export default function Mypage() {
           </div>
         )}
 
-        {/* 내가 쓴 댓글 */}
-{/* 내가 쓴 댓글 */}
-{activeTab === "comments" && !loading && (
-  <div>
-    <h3 className="mypagetitle">내가 쓴 댓글</h3>
-    <ul>
-      {comments.map((c) => (
-        <li key={c.id} className="comment-item">
-          <div className="comment-left">
-            <Link to={`/posts/${c.postId}`} className="comment-link">
-              <strong>{c.content}</strong>
-              {c.edited && <span className="edited-tag"> (수정됨)</span>}
-            </Link>
+        {activeTab === "comments" && !loading && (
+          <div>
+            <h3 className="mypagetitle">내가 쓴 댓글</h3>
+            <ul>
+              {comments.map((c: any) => (
+                <li key={c.id} className="comment-item">
+                  <div className="comment-left">
+                    <Link to={`/posts/${c.postId}`} className="comment-link">
+                      <strong>{c.content}</strong>
+                      {c.edited && <span className="edited-tag"> (수정됨)</span>}
+                    </Link>
+                  </div>
+                  <div className="comment-right">
+                    <small>
+                      원글: {c.postTitle} ({new Date(c.date).toLocaleDateString()})
+                    </small>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Pagination currentPage={commentPage} totalPages={commentTotalPages} onPageChange={setCommentPage} />
           </div>
-          <div className="comment-right">
-            <small>
-              원글: {c.postTitle} ({new Date(c.date).toLocaleDateString()})
-            </small>
-          </div>
-        </li>
-      ))}
-    </ul>
-    <Pagination
-      currentPage={commentPage}
-      totalPages={commentTotalPages}
-      onPageChange={setCommentPage}
-    />
-  </div>
-)}
+        )}
 
-        {/* 좋아요한 글 */}
         {activeTab === "likes" && !loading && (
           <div>
             <h3 className="mypagetitle">좋아요한 글</h3>
@@ -295,7 +288,6 @@ export default function Mypage() {
           </div>
         )}
 
-        {/* 프로필 수정 */}
         {activeTab === "settings" && (
           <div className="settings">
             <h3 className="mypagetitle">프로필 수정</h3>
@@ -346,7 +338,6 @@ export default function Mypage() {
           </div>
         )}
 
-        {/* 회원 탈퇴 */}
         {activeTab === "delete" && (
           <div className="delete-account">
             <h3 className="mypagetitle">회원 탈퇴</h3>
