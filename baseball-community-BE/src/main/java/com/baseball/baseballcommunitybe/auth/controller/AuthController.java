@@ -45,8 +45,8 @@ public class AuthController {
         // Access Token → HttpOnly 쿠키 저장
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", tokens.getAccessToken())
                 .httpOnly(true)
-                .secure(false) // 운영 시 true (HTTPS)
-                .sameSite("Lax")
+                .secure(true) // 운영 시 true (HTTPS)
+                .sameSite("None")
                 .path("/")
                 .maxAge(60 * 15) // 15분
                 .build();
@@ -67,8 +67,8 @@ public class AuthController {
         // 쿠키 만료 처리
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", "")
                 .httpOnly(true)
-                .secure(false) // 운영 환경에서는 true
-                .sameSite("Lax")
+                .secure(true) // 운영 시 true (HTTPS)
+                .sameSite("None")
                 .path("/")
                 .maxAge(0) // 즉시 만료
                 .build();

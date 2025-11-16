@@ -42,8 +42,8 @@ public class AdminAuthController {
         // ADMIN_TOKEN 쿠키 생성 (HttpOnly)
         ResponseCookie cookie = ResponseCookie.from("ADMIN_TOKEN", tokens.getAccessToken())
                 .httpOnly(true)
-                .secure(false) // 운영환경에서는 true (HTTPS)
-                .sameSite("Lax")
+                .secure(true) // 운영 시 true (HTTPS)
+                .sameSite("None")
                 .path("/")
                 .maxAge(60 * 15) // 15분
                 .build();
@@ -66,8 +66,8 @@ public class AdminAuthController {
 
         ResponseCookie expiredCookie = ResponseCookie.from("ADMIN_TOKEN", "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax") // 로컬에서는 None
+                .secure(true) // 운영 시 true (HTTPS)
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();
