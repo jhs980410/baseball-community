@@ -48,6 +48,7 @@ public class AuthController {
                 .secure(true) // 운영 시 true (HTTPS)
                 .sameSite("None")
                 .path("/")
+                .domain("baseballjhs.o-r.kr")
                 .maxAge(60 * 15) // 15분
                 .build();
 
@@ -69,6 +70,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true) // 운영 시 true (HTTPS)
                 .sameSite("None")
+                .domain("baseballjhs.o-r.kr")
                 .path("/")
                 .maxAge(0) // 즉시 만료
                 .build();

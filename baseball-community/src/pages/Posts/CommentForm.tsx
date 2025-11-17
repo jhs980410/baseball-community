@@ -18,7 +18,7 @@ export default function CommentForm({
     if (!content.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:8080/api/comments", {
+      const res = await fetch("https://baseballjhs.o-r.kr/api/comments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

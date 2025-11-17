@@ -3,7 +3,6 @@ package com.baseball.baseballcommunitybe.admin.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +21,7 @@ public class AdminUser {
     private String email;
 
     @Column(nullable = false)
-    private String password; // 🔹 반드시 추가
+    private String password;
 
     @Column(nullable = false, unique = true, length = 50)
     private String nickname;
@@ -35,14 +34,28 @@ public class AdminUser {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    public enum Role { USER, ADMIN, MODERATOR, SUPER_ADMIN; }
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
 
+    public enum Status { ACTIVE, SUSPENDED, DELETED }
+
     private String suspendReason;
     private LocalDateTime suspendedAt;
 
+    // 🔥 Soft Delete 컬럼 추가
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
-    public enum Role { USER, ADMIN, MODERATOR,SUPER_ADMIN; }
-    public enum Status { ACTIVE, SUSPENDED, DELETED }
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    // 🔥 소프트 삭제 처리 메서드
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.status = Status.DELETED;
+    }
 }

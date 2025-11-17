@@ -112,19 +112,27 @@ public class JwtTokenProvider {
 
     // Authorization 헤더 및 쿠키에서 JWT 추출
     public String resolveToken(HttpServletRequest request) {
+
+        // 1) 쿠키에서 ACCESS_TOKEN 또는 ADMIN_TOKEN 먼저 찾기
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("ACCESS_TOKEN".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+            for (Cookie cookie : request.getCookies()) {
+                if ("ADMIN_TOKEN".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        // 2) Authorization 헤더 (fallback)
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
 
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("ADMIN_TOKEN".equals(cookie.getName())) return cookie.getValue();
-            }
-            for (Cookie cookie : request.getCookies()) {
-                if ("ACCESS_TOKEN".equals(cookie.getName())) return cookie.getValue();
-            }
-        }
         return null;
     }
 }

@@ -45,6 +45,7 @@ public class AdminAuthController {
                 .secure(true) // 운영 시 true (HTTPS)
                 .sameSite("None")
                 .path("/")
+                .domain("adminbaseball.o-r.kr")
                 .maxAge(60 * 15) // 15분
                 .build();
 
@@ -69,6 +70,7 @@ public class AdminAuthController {
                 .secure(true) // 운영 시 true (HTTPS)
                 .sameSite("None")
                 .path("/")
+                .domain("adminbaseball.o-r.kr")
                 .maxAge(0)
                 .build();
 

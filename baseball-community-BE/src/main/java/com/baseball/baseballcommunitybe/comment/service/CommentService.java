@@ -19,8 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -164,24 +166,32 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
-    // 댓글 삭제
     @Transactional
     public void delete(Long commentId, Long currentUserId, boolean isAdmin) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글 없음"));
 
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글 없음"));
+
+        // 권한 체크 (SecurityException 사용 금지)
         if (!comment.getUser().getId().equals(currentUserId) && !isAdmin) {
-            throw new SecurityException("댓글 삭제 권한 없음");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한 없음");
+        }
+
+        // 자식 댓글 존재 시 부모 삭제 불가
+        List<Comment> children = commentRepository.findByParentId(commentId);
+        if (!children.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "대댓글 먼저 삭제하세요");
         }
 
         Long postId = comment.getPost().getId();
 
-        //  CommentStatus 삭제
+        // 상태 삭제
         commentStatusRepository.deleteById(commentId);
 
+        // 댓글 삭제
         commentRepository.deleteById(commentId);
 
-        //  PostStatus 댓글 수 감소
+        // post_status 감소
         postStatusRepository.decrementCommentCount(postId);
     }
     // ----------------- 내부 헬퍼 -----------------

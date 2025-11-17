@@ -26,4 +26,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 게시글별 댓글 개수
     Long countByPostId(Long postId);
+
+    List<Comment> findByParentId(Long commentId);
 }

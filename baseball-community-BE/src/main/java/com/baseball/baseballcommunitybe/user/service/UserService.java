@@ -3,10 +3,13 @@ package com.baseball.baseballcommunitybe.user.service;
 import com.baseball.baseballcommunitybe.user.dto.UserResponseDto;
 import com.baseball.baseballcommunitybe.user.dto.UserUpdateRequestDto;
 import com.baseball.baseballcommunitybe.user.entity.User;
+import com.baseball.baseballcommunitybe.user.exception.CustomErrorCode;
+import com.baseball.baseballcommunitybe.user.exception.CustomException;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +42,29 @@ public class UserService {
     }
 
     // 유저 삭제 (탈퇴)
+    @Transactional
     public void deleteUser(Long id) {
-        // 실제 삭제 대신 Soft Delete로 바꾸려면 status=DELETED 설정
-        userRepository.deleteById(id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 🔥 1) Soft Delete 처리
+        user.softDelete();
+        // softDelete() 내부: isDeleted = true, deletedAt = now, status = DELETED
+
+        // 🔥 2) 개인정보 파기 (법적 요구 충족)
+        user.setEmail(null);
+        user.setPassword(null);        // bcrypt 해시 파기
+        user.setRefreshToken(null);
+
+        // 닉네임은 "탈퇴한 회원"으로 처리 (커뮤니티 표준)
+        user.setNickname("탈퇴한 회원");
+
+        // 🔥 3) 영속성 컨텍스트에 의해 자동 UPDATE됨
+        // JPA 더티체킹으로 user 테이블에 update 쿼리 실행됨
     }
+
+
 
     // 관리자: 유저 상태 변경
     public void updateUserStatus(Long id, String status) {
