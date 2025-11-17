@@ -21,11 +21,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/jhs980410/baseball-backend:latest ./baseball-community-BE
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/baseball-community-backend:latest \
+            ./baseball-community-BE
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/jhs980410/baseball-backend:latest
+          docker push ghcr.io/${{ github.repository_owner }}/baseball-community-backend:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
@@ -34,10 +36,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ghcr.io/jhs980410/baseball-backend:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/baseball-community-backend:latest
             docker stop baseball_backend || true
             docker rm baseball_backend || true
-
             docker run -d --name baseball_backend \
               -p 8080:8080 \
-              ghcr.io/jhs980410/baseball-backend:latest
+              ghcr.io/${{ github.repository_owner }}/baseball-community-backend:latest
