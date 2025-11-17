@@ -12,7 +12,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # GHCR 로그인
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -20,17 +19,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Docker 이미지 빌드
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/baseball-backend:latest ./baseball-community-BE
+          docker build -t ghcr.io/${{ github.repository }}/backend:latest ./baseball-community-BE
 
-      # GHCR로 Push
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/baseball-backend:latest
+          docker push ghcr.io/${{ github.repository }}/backend:latest
 
-      # EC2에 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -38,10 +34,10 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ghcr.io/${{ github.repository_owner }}/baseball-backend:latest
+            docker pull ghcr.io/${{ github.repository }}/backend:latest
             docker stop baseball_backend || true
             docker rm baseball_backend || true
 
             docker run -d --name baseball_backend \
               -p 8080:8080 \
-              ghcr.io/${{ github.repository_owner }}/baseball-backend:latest
+              ghcr.io/${{ github.repository }}/backend:latest
