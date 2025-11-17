@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -48,20 +50,25 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
-        // 🔥 1) Soft Delete 처리
-        user.softDelete();
-        // softDelete() 내부: isDeleted = true, deletedAt = now, status = DELETED
+        if (user.isDeleted()) {
+            throw new CustomException(CustomErrorCode.USER_ALREADY_DELETED);
+        }
 
-        // 🔥 2) 개인정보 파기 (법적 요구 충족)
-        user.setEmail(null);
-        user.setPassword(null);        // bcrypt 해시 파기
+        // 1) Soft Delete 처리
+        user.setDeleted(true);
+        user.setDeletedAt(LocalDateTime.now());
+        user.setStatus(User.Status.DELETED);
+
+        // 2) 개인정보 파기 (DB 제약 만족하며 익명화)
+        user.setEmail("DEL_" + user.getId() + "@deleted.local"); // NOT NULL + UNIQUE
+        user.setNickname("탈퇴한 회원_" + user.getId()); // UNIQUE 깨지지 않도록 ID 포함
+
+        // password NOT NULL → 더미 값으로 대체
+        user.setPassword("DELETED_USER");
+
         user.setRefreshToken(null);
 
-        // 닉네임은 "탈퇴한 회원"으로 처리 (커뮤니티 표준)
-        user.setNickname("탈퇴한 회원");
-
-        // 🔥 3) 영속성 컨텍스트에 의해 자동 UPDATE됨
-        // JPA 더티체킹으로 user 테이블에 update 쿼리 실행됨
+        // JPA Dirty Checking 자동 업데이트
     }
 
 
