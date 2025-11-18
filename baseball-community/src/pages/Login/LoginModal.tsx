@@ -20,12 +20,12 @@ export default function LoginDropdown({ onClose }: Props) {
       const res = await login({ email, password });
 
       //  로그인 성공 시 전역 상태 업데이트
-        setUserInfo({
-        id: res.id,
-        email: res.email,
-        nickname: res.nickname,
-      });
-
+                setUserInfo({
+          id: res.id,
+          email: res.email,
+          nickname: res.nickname,
+          role: res.role,
+        });
 
       alert("로그인 성공!");
       onClose();
