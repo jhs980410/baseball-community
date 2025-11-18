@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Notice.css";
+import "./notice.css";
 
 interface Notice {
   id: number;
