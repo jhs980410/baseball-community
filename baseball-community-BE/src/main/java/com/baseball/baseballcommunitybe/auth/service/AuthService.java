@@ -5,6 +5,7 @@ import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.redis.repository.DailyStatsRedisRepository;
+import com.baseball.baseballcommunitybe.user.dto.UserResponseDto;
 import com.baseball.baseballcommunitybe.user.entity.User;
 import com.baseball.baseballcommunitybe.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
@@ -157,5 +158,45 @@ public class AuthService {
 
     public Long getUserIdFromToken(String token) {
         return jwtTokenProvider.getUserIdFromToken(token);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getLoginUser(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+
+        if (token == null || jwtTokenProvider.isExpired(token)) {
+            throw new IllegalArgumentException("토큰 만료 또는 없음");
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+
+        return new UserResponseDto(user);
+    }
+
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getAdminMe(HttpServletRequest request) {
+
+        // ADMIN_TOKEN 또는 ACCESS_TOKEN 자동 추출
+        String token = jwtTokenProvider.resolveToken(request);
+
+        if (token == null || jwtTokenProvider.isExpired(token)) {
+            throw new IllegalArgumentException("토큰 없음 또는 만료");
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+
+        // 관리자 권한 검사
+        String role = user.getRole().name();
+        if (!role.equals("ADMIN") && !role.equals("SUPER_ADMIN")) {
+            throw new IllegalArgumentException("관리자 권한 없음");
+        }
+
+        return new UserResponseDto(user);
     }
 }

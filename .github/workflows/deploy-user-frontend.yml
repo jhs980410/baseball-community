@@ -1,0 +1,48 @@
+name: Deploy User Frontend
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd baseball-community
+          npm install
+
+      - name: Build
+        run: |
+          cd baseball-community
+          npm run build
+
+      - name: Upload build files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "baseball-community/dist/*"
+          target: "/home/ubuntu/user_front_build/"
+
+      - name: Move build to nginx path
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo rm -rf /var/www/user_front/*
+            sudo cp -r /home/ubuntu/user_front_build/* /var/www/user_front/
+            sudo systemctl reload nginx

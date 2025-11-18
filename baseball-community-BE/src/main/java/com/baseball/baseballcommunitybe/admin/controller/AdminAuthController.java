@@ -77,6 +77,9 @@ public class AdminAuthController {
         response.addHeader("Set-Cookie", expiredCookie.toString());
         return ResponseEntity.noContent().build();
     }
-
+    @GetMapping("/me")
+    public ResponseEntity<?> getAdminMe(HttpServletRequest request) {
+        return ResponseEntity.ok(authService.getAdminMe(request));
+    }
 }
 

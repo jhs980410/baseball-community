@@ -6,6 +6,7 @@ import com.baseball.baseballcommunitybe.auth.dto.SignupRequestDto;
 import com.baseball.baseballcommunitybe.auth.dto.TokenResponseDto;
 import com.baseball.baseballcommunitybe.auth.jwt.JwtTokenProvider;
 import com.baseball.baseballcommunitybe.auth.service.AuthService;
+import com.baseball.baseballcommunitybe.user.dto.UserResponseDto;
 import com.baseball.baseballcommunitybe.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,8 @@ public class AuthController {
         authService.signup(dto);
         return ResponseEntity.ok("회원가입 성공");
     }
+
+
 
     /**
      * 로그인
@@ -107,6 +110,11 @@ public class AuthController {
         boolean result = authService.verifyPassword(userId, req.getPassword());
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getLoginUser(HttpServletRequest request) {
+        return ResponseEntity.ok(authService.getLoginUser(request));
     }
 
 }
